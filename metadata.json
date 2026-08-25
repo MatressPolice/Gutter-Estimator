@@ -1,0 +1,6 @@
+{
+  "name": "Gutter Estimator",
+  "description": "A dynamic spreadsheet-like estimating tool for custom parts manufacture, featuring formula-based real-time calculations and print-ready detailed math breakdowns.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
