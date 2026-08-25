@@ -1,4 +1,4 @@
-import { FileText, Save, Plus, Printer, Trash2, Database, AlertCircle } from 'lucide-react';
+import { FileText, Save, Plus, Printer, Trash2, Database, AlertCircle, CloudCheck, Cloud } from 'lucide-react';
 import { Estimate, EstimateTotals } from '../types';
 import { formatCurrency } from '../utils/calculations';
 
@@ -12,6 +12,9 @@ interface HeaderProps {
   hasUnsavedChanges: boolean;
   onToggleSidebar: () => void;
   savedCount: number;
+  appVersion: string;
+  buildTimestamp: string;
+  isCloudConnected?: boolean;
 }
 
 export default function Header({
@@ -24,7 +27,25 @@ export default function Header({
   hasUnsavedChanges,
   onToggleSidebar,
   savedCount,
+  appVersion,
+  buildTimestamp,
+  isCloudConnected = true,
 }: HeaderProps) {
+  const formattedBuildDate = (() => {
+    try {
+      return new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      }).format(new Date(buildTimestamp));
+    } catch {
+      return buildTimestamp;
+    }
+  })();
+
   return (
     <header className="bg-white border-b border-slate-200 no-print sticky top-0 z-30 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -35,9 +56,21 @@ export default function Header({
               <FileText className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="font-display font-bold text-2xl text-slate-900 tracking-tight">
-                Gutter Estimator
-              </h1>
+              <div className="flex items-center gap-2.5">
+                <h1 className="font-display font-bold text-2xl text-slate-900 tracking-tight">
+                  Gutter Estimator
+                </h1>
+                <div 
+                  className="flex items-center gap-1.5 px-2.5 py-0.5 bg-slate-100 border border-slate-200 rounded-full text-xs font-mono font-semibold text-slate-700 shadow-2xs"
+                  title={`Version ${appVersion} • Deployed on ${formattedBuildDate}`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${isCloudConnected ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                  <span>v{appVersion}</span>
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                Updated: {formattedBuildDate}
+              </p>
             </div>
           </div>
 
@@ -45,9 +78,9 @@ export default function Header({
             <button
               onClick={onToggleSidebar}
               className="px-3 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
-              title="Saved Estimates"
+              title="Cloud & Local Saved Estimates"
             >
-              <Database className="w-4 h-4" />
+              <Database className="w-4 h-4 text-blue-600" />
               <span>Quotes ({savedCount})</span>
             </button>
 
@@ -61,7 +94,7 @@ export default function Header({
 
             <button
               onClick={onSave}
-              className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
+              className={`px-3.5 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
                 hasUnsavedChanges
                   ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
                   : 'bg-slate-50 border border-slate-200 text-slate-400 cursor-not-allowed'

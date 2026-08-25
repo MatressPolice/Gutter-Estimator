@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Printer, ArrowLeft, BookmarkCheck } from 'lucide-react';
+import { Printer, ArrowLeft, BookmarkCheck, CloudCheck, Cloud } from 'lucide-react';
 import { Estimate, PartItem, EstimateTotals, GutterShellItem } from './types';
 import { calculateEstimateTotals } from './utils/calculations';
+import { APP_VERSION, BUILD_TIMESTAMP } from './version';
+import { saveEstimateToCloud, deleteEstimateFromCloud, subscribeToEstimates } from './firebase';
 import Header from './components/Header';
 import RatesConfig from './components/RatesConfig';
 import PartsTable from './components/PartsTable';
@@ -16,7 +18,7 @@ const SEED_ESTIMATE: Estimate = {
   id: 'seed-estimate-id-1',
   name: 'Custom Base Plate & Bracket Assembly',
   clientName: 'Acme Steel Fabrication',
-  quoteNumber: '',
+  quoteNumber: 'QT-2026-001',
   date: '2026-07-10',
   notes: 'Production run for custom structural mounting components.',
   hourlyRate: 100,
@@ -25,8 +27,8 @@ const SEED_ESTIMATE: Estimate = {
   parts: [
     {
       id: 'part-1',
-      name: '',
-      uom: '',
+      name: 'Custom Flashing Bracket',
+      uom: 'EA',
       hours: 2.50,
       sheets: 3,
       pricePerSheet: 45.00,
@@ -34,8 +36,8 @@ const SEED_ESTIMATE: Estimate = {
     },
     {
       id: 'part-2',
-      name: '',
-      uom: '',
+      name: 'Corner Joiner 24G',
+      uom: 'EA',
       hours: 1.25,
       sheets: 1,
       pricePerSheet: 28.50,
@@ -43,8 +45,8 @@ const SEED_ESTIMATE: Estimate = {
     },
     {
       id: 'part-3',
-      name: '',
-      uom: '',
+      name: 'Heavy Duty Support Strap',
+      uom: 'EA',
       hours: 4.00,
       sheets: 6,
       pricePerSheet: 32.00,
@@ -64,45 +66,65 @@ export default function App() {
   const [currentEstimate, setCurrentEstimate] = useState<Estimate>(SEED_ESTIMATE);
   const [activePartId, setActivePartId] = useState<string | null>(null);
   const [activeShellId, setActiveShellId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'parts' | 'shell'>('shell');
+  const [activeTab, setActiveTab] = useState<'shell' | 'parts'>('shell');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saveSuccessNotification, setSaveSuccessNotification] = useState(false);
+  const [isCloudConnected, setIsCloudConnected] = useState(true);
 
   // ----------------------------------------------------
-  // PERSISTENCE ENGINE (LOCAL STORAGE)
+  // PERSISTENCE ENGINE (FIRESTORE CLOUD + LOCAL CACHE)
   // ----------------------------------------------------
-  // Load estimates on mount
   useEffect(() => {
+    // 1. Initial immediate local cache load for instant responsiveness
     const stored = localStorage.getItem('custom_parts_estimates');
     if (stored) {
       try {
         const parsed = JSON.parse(stored) as Estimate[];
-        setEstimates(parsed);
         if (parsed.length > 0) {
-          // Load the most recently updated estimate
+          setEstimates(parsed);
           const sorted = [...parsed].sort(
             (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
           );
           setCurrentEstimate(sorted[0]);
-        } else {
-          // If empty list, use seed
-          setCurrentEstimate(SEED_ESTIMATE);
-          setEstimates([SEED_ESTIMATE]);
-          localStorage.setItem('custom_parts_estimates', JSON.stringify([SEED_ESTIMATE]));
         }
       } catch (err) {
-        console.error('Error reading saved estimates, restoring seed:', err);
-        setEstimates([SEED_ESTIMATE]);
-        setCurrentEstimate(SEED_ESTIMATE);
+        console.error('Error reading saved estimates from local cache:', err);
       }
-    } else {
-      // First run: save seed estimate
-      setEstimates([SEED_ESTIMATE]);
-      setCurrentEstimate(SEED_ESTIMATE);
-      localStorage.setItem('custom_parts_estimates', JSON.stringify([SEED_ESTIMATE]));
     }
+
+    // 2. Real-time Cloud Firestore subscription
+    const unsubscribe = subscribeToEstimates(
+      (cloudEstimates) => {
+        setIsCloudConnected(true);
+        if (cloudEstimates.length > 0) {
+          setEstimates(cloudEstimates);
+          localStorage.setItem('custom_parts_estimates', JSON.stringify(cloudEstimates));
+
+          // If current estimate is loaded, sync matching cloud update if not dirty
+          setCurrentEstimate((current) => {
+            const foundInCloud = cloudEstimates.find((e) => e.id === current.id);
+            if (foundInCloud && !hasUnsavedChanges) {
+              return foundInCloud;
+            }
+            if (!foundInCloud && current.id === SEED_ESTIMATE.id) {
+              return cloudEstimates[0];
+            }
+            return current;
+          });
+        } else {
+          // Cloud empty: populate with seed
+          saveEstimateToCloud(SEED_ESTIMATE).catch(() => {});
+        }
+      },
+      (err) => {
+        console.warn('Firestore offline/fallback mode active:', err);
+        setIsCloudConnected(false);
+      }
+    );
+
+    return () => unsubscribe();
   }, []);
 
   // Track unsaved changes relative to stored version
@@ -124,8 +146,6 @@ export default function App() {
     overheadPercent: currentEstimate.overheadPercent,
     profitPercent: currentEstimate.profitPercent,
   });
-
-  const selectedPart = currentEstimate.parts.find((p) => p.id === activePartId) || null;
 
   // ----------------------------------------------------
   // WORKSPACE ACTION HANDLERS
@@ -171,11 +191,10 @@ export default function App() {
 
   const handleAddPart = () => {
     setCurrentEstimate((prev) => {
-      const nextNum = prev.parts.length + 1;
       const newPart: PartItem = {
         id: `part-${Date.now()}`,
         name: '',
-        uom: '',
+        uom: 'EA',
         hours: 0,
         sheets: 0,
         pricePerSheet: 0,
@@ -183,7 +202,7 @@ export default function App() {
       };
 
       const newParts = [...prev.parts, newPart];
-      setActivePartId(newPart.id); // auto select new row
+      setActivePartId(newPart.id);
 
       return {
         ...prev,
@@ -196,7 +215,6 @@ export default function App() {
   const handleDeletePart = (id: string) => {
     setCurrentEstimate((prev) => {
       const filtered = prev.parts.filter((p) => p.id !== id);
-      // Clean active ID if deleted
       if (activePartId === id) {
         setActivePartId(filtered.length > 0 ? filtered[0].id : null);
       }
@@ -217,7 +235,7 @@ export default function App() {
       const clone: PartItem = {
         ...source,
         id: `part-clone-${Date.now()}`,
-        name: `${source.name} Copy`,
+        name: source.name ? `${source.name} (Copy)` : '',
       };
 
       const newParts = [...prev.parts];
@@ -239,7 +257,6 @@ export default function App() {
 
       if (targetIndex < 0 || targetIndex >= newParts.length) return prev;
 
-      // Swap
       const temp = newParts[index];
       newParts[index] = newParts[targetIndex];
       newParts[targetIndex] = temp;
@@ -356,32 +373,38 @@ export default function App() {
   // ----------------------------------------------------
   // ESTIMATE COLLECTION HANDLERS
   // ----------------------------------------------------
-  const handleSaveEstimate = () => {
+  const handleSaveEstimate = async () => {
+    const saveItem: Estimate = {
+      ...currentEstimate,
+      updatedAt: new Date().toISOString(),
+    };
+
+    // 1. Optimistic local state + localStorage update
     setEstimates((prev) => {
-      const idx = prev.findIndex((e) => e.id === currentEstimate.id);
+      const idx = prev.findIndex((e) => e.id === saveItem.id);
       let updatedList = [...prev];
-
-      const saveItem = {
-        ...currentEstimate,
-        updatedAt: new Date().toISOString(),
-      };
-
       if (idx !== -1) {
         updatedList[idx] = saveItem;
       } else {
         updatedList.push(saveItem);
       }
-
       localStorage.setItem('custom_parts_estimates', JSON.stringify(updatedList));
       return updatedList;
     });
+
+    // 2. Cloud Firestore persistence
+    try {
+      await saveEstimateToCloud(saveItem);
+      setIsCloudConnected(true);
+    } catch (err) {
+      console.warn('Cloud sync offline; stored in local cache:', err);
+    }
 
     setSaveSuccessNotification(true);
     setTimeout(() => setSaveSuccessNotification(false), 3000);
   };
 
   const handleCreateNewEstimate = () => {
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const dateStr = new Date().toISOString().split('T')[0];
     const newEst: Estimate = {
       id: `estimate-${Date.now()}`,
@@ -396,7 +419,7 @@ export default function App() {
         {
           id: `part-${Date.now()}`,
           name: '',
-          uom: '',
+          uom: 'EA',
           hours: 0,
           sheets: 0,
           pricePerSheet: 0,
@@ -422,12 +445,12 @@ export default function App() {
     }
   };
 
-  const handleDeleteEstimate = (id: string) => {
+  const handleDeleteEstimate = async (id: string) => {
+    // 1. Local update
     setEstimates((prev) => {
       const filtered = prev.filter((e) => e.id !== id);
       localStorage.setItem('custom_parts_estimates', JSON.stringify(filtered));
 
-      // If we deleted the active quote, load seed or first remaining
       if (currentEstimate.id === id) {
         if (filtered.length > 0) {
           setCurrentEstimate(filtered[0]);
@@ -439,13 +462,19 @@ export default function App() {
       }
       return filtered;
     });
+
+    // 2. Cloud Firestore deletion
+    try {
+      await deleteEstimateFromCloud(id);
+    } catch (err) {
+      console.warn('Error removing from cloud database:', err);
+    }
   };
 
-  const handleDuplicateEstimate = (id: string) => {
+  const handleDuplicateEstimate = async (id: string) => {
     const target = estimates.find((e) => e.id === id);
     if (!target) return;
 
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const duplicated: Estimate = {
       ...target,
       id: `estimate-${Date.now()}`,
@@ -463,12 +492,32 @@ export default function App() {
 
     setCurrentEstimate(duplicated);
     setActivePartId(duplicated.parts.length > 0 ? duplicated.parts[0].id : null);
+
+    try {
+      await saveEstimateToCloud(duplicated);
+    } catch (err) {
+      console.warn('Saved clone locally, cloud sync pending:', err);
+    }
   };
 
-  // Trigger Native Browser Print Dialog
   const handlePrintTrigger = () => {
     window.print();
   };
+
+  const formattedBuildDate = (() => {
+    try {
+      return new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      }).format(new Date(BUILD_TIMESTAMP));
+    } catch {
+      return BUILD_TIMESTAMP;
+    }
+  })();
 
   return (
     <div className="min-h-screen flex bg-slate-50 relative font-sans text-slate-900 selection:bg-blue-100 antialiased">
@@ -476,12 +525,12 @@ export default function App() {
       {saveSuccessNotification && (
         <div className="fixed top-4 right-4 z-50 bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-lg border border-emerald-500/30 flex items-center gap-2.5 animate-bounce font-medium text-sm no-print">
           <BookmarkCheck className="w-5 h-5" />
-          <span>Estimate saved successfully to Cloud container!</span>
+          <span>Estimate saved successfully to Cloud Firestore!</span>
         </div>
       )}
 
       {/* ----------------------------------------------------
-          ARCHIVE DRAWER / SIDEBAR (LOCAL STORAGE)
+          ARCHIVE DRAWER / SIDEBAR (FIRESTORE & LOCAL)
          ---------------------------------------------------- */}
       {isSidebarOpen && (
         <div className="fixed inset-0 z-40 flex no-print">
@@ -554,6 +603,9 @@ export default function App() {
             hasUnsavedChanges={hasUnsavedChanges}
             onToggleSidebar={() => setIsSidebarOpen(true)}
             savedCount={estimates.length}
+            appVersion={APP_VERSION}
+            buildTimestamp={BUILD_TIMESTAMP}
+            isCloudConnected={isCloudConnected}
           />
 
           {/* Main workspace scrollable area */}
@@ -563,7 +615,7 @@ export default function App() {
             <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
               <button
                 onClick={() => setActiveTab('shell')}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
                   activeTab === 'shell' 
                     ? 'bg-blue-600 text-white shadow-sm' 
                     : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
@@ -573,7 +625,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setActiveTab('parts')}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
                   activeTab === 'parts' 
                     ? 'bg-blue-600 text-white shadow-sm' 
                     : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
@@ -583,7 +635,7 @@ export default function App() {
               </button>
             </div>
 
-            {/* Estimating Table - Full Width */}
+            {/* Estimating Table */}
             <div className="space-y-6">
               {activeTab === 'parts' ? (
                 <>
@@ -622,19 +674,24 @@ export default function App() {
             </div>
           </main>
 
-          {/* Architectural Honesty: Humble, clean system footer */}
+          {/* Footer with App Version & Fixed Build Timestamp */}
           <footer className="no-print border-t border-slate-200 mt-auto bg-white py-4 text-center text-[11px] text-slate-400 font-sans tracking-wide">
             <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <p>Gutter Estimator &copy; 2026. All formulas conform to workshop spec.</p>
+              <div className="flex items-center gap-2">
+                <span>Gutter Estimator &copy; 2026.</span>
+                <span className="font-mono text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200">
+                  v{APP_VERSION}
+                </span>
+              </div>
               <p className="font-mono text-[10px] text-slate-400">
-                Cloud-Hosted Environment &bull; Local Cache Persistence Active
+                Cloud Sync: {isCloudConnected ? 'Connected (Firestore)' : 'Offline Cache'} &bull; Last Deployed: {formattedBuildDate}
               </p>
             </div>
           </footer>
         </div>
       )}
 
-      {/* Embedded print sheet invisible on screen, but caught by print media rules if window.print is called directly */}
+      {/* Embedded print sheet */}
       <div className="hidden print:block">
         <PrintDocument estimate={currentEstimate} totals={totals} />
       </div>
