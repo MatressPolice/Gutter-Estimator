@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Printer, ArrowLeft, BookmarkCheck, CheckCircle2 } from 'lucide-react';
+import { Printer, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { Estimate, PartItem, EstimateTotals, GutterShellItem } from './types';
 import { calculateEstimateTotals } from './utils/calculations';
 import { APP_VERSION, BUILD_TIMESTAMP } from './version';
@@ -13,58 +13,42 @@ import PrintDocument from './components/PrintDocument';
 import SaveEstimateModal from './components/SaveEstimateModal';
 
 // ----------------------------------------------------
-// DEFAULT SEED ESTIMATE
+// DEFAULT BLANK ESTIMATE CREATOR
 // ----------------------------------------------------
-const SEED_ESTIMATE: Estimate = {
-  id: 'seed-estimate-id-1',
-  name: 'Custom Base Plate & Bracket Assembly',
-  clientName: 'Acme Steel Fabrication',
-  quoteNumber: 'QT-2026-001',
-  date: '2026-07-10',
-  notes: 'Production run for custom structural mounting components.',
-  hourlyRate: 100,
-  overheadPercent: 34,
-  profitPercent: 10,
-  parts: [
-    {
-      id: 'part-1',
-      name: 'Custom Flashing Bracket',
-      uom: 'EA',
-      hours: 2.50,
-      sheets: 3,
-      pricePerSheet: 45.00,
-      quantity: 20,
-    },
-    {
-      id: 'part-2',
-      name: 'Corner Joiner 24G',
-      uom: 'EA',
-      hours: 1.25,
-      sheets: 1,
-      pricePerSheet: 28.50,
-      quantity: 15,
-    },
-    {
-      id: 'part-3',
-      name: 'Heavy Duty Support Strap',
-      uom: 'EA',
-      hours: 4.00,
-      sheets: 6,
-      pricePerSheet: 32.00,
-      quantity: 10,
-    }
-  ],
-  shells: [],
-  createdAt: '2026-07-10T15:15:00.000Z',
-  updatedAt: '2026-07-10T15:15:00.000Z',
-};
+function createNewBlankEstimate(): Estimate {
+  const dateStr = new Date().toISOString().split('T')[0];
+  return {
+    id: `estimate-${Date.now()}`,
+    name: 'New Custom Parts Quote',
+    clientName: '',
+    quoteNumber: '',
+    date: dateStr,
+    hourlyRate: 100,
+    overheadPercent: 34,
+    profitPercent: 10,
+    parts: [
+      {
+        id: `part-${Date.now()}`,
+        name: '',
+        uom: 'EA',
+        hours: 0,
+        sheets: 0,
+        pricePerSheet: 0,
+        quantity: 1,
+      }
+    ],
+    shells: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+}
 
 export default function App() {
   // ----------------------------------------------------
   // STATES
   // ----------------------------------------------------
   const [estimates, setEstimates] = useState<Estimate[]>([]);
-  const [currentEstimate, setCurrentEstimate] = useState<Estimate>(SEED_ESTIMATE);
+  const [currentEstimate, setCurrentEstimate] = useState<Estimate>(createNewBlankEstimate);
   const [activePartId, setActivePartId] = useState<string | null>(null);
   const [activeShellId, setActiveShellId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'shell' | 'parts'>('shell');
@@ -79,11 +63,13 @@ export default function App() {
   // PERSISTENCE ENGINE (FIRESTORE CLOUD + LOCAL CACHE)
   // ----------------------------------------------------
   useEffect(() => {
-    // 1. Initial immediate local cache load for instant responsiveness
+    // 1. Initial immediate local cache load (filtering out any old seed samples)
     const stored = localStorage.getItem('custom_parts_estimates');
     if (stored) {
       try {
-        const parsed = JSON.parse(stored) as Estimate[];
+        const parsed = (JSON.parse(stored) as Estimate[]).filter(
+          (e) => e.id !== 'seed-estimate-id-1' && e.name !== 'Custom Base Plate & Bracket Assembly'
+        );
         if (parsed.length > 0) {
           setEstimates(parsed);
           const sorted = [...parsed].sort(
@@ -100,24 +86,26 @@ export default function App() {
     const unsubscribe = subscribeToEstimates(
       (cloudEstimates) => {
         setIsCloudConnected(true);
-        if (cloudEstimates.length > 0) {
-          setEstimates(cloudEstimates);
-          localStorage.setItem('custom_parts_estimates', JSON.stringify(cloudEstimates));
+        // Filter out any legacy seed estimates
+        const cleaned = cloudEstimates.filter(
+          (e) => e.id !== 'seed-estimate-id-1' && e.name !== 'Custom Base Plate & Bracket Assembly'
+        );
 
-          // If current estimate is loaded, sync matching cloud update if not dirty
+        setEstimates(cleaned);
+        localStorage.setItem('custom_parts_estimates', JSON.stringify(cleaned));
+
+        if (cleaned.length > 0) {
           setCurrentEstimate((current) => {
-            const foundInCloud = cloudEstimates.find((e) => e.id === current.id);
+            const foundInCloud = cleaned.find((e) => e.id === current.id);
             if (foundInCloud && !hasUnsavedChanges) {
               return foundInCloud;
             }
-            if (!foundInCloud && current.id === SEED_ESTIMATE.id) {
-              return cloudEstimates[0];
+            if (!foundInCloud && current.id.startsWith('estimate-')) {
+              // If user is currently editing a new unsaved quote, keep it
+              return current;
             }
-            return current;
+            return cleaned[0];
           });
-        } else {
-          // Cloud empty: populate with seed
-          saveEstimateToCloud(SEED_ESTIMATE).catch(() => {});
         }
       },
       (err) => {
@@ -133,7 +121,9 @@ export default function App() {
   useEffect(() => {
     const savedVer = estimates.find((e) => e.id === currentEstimate.id);
     if (!savedVer) {
-      setHasUnsavedChanges(true);
+      // If it's a blank fresh quote, only flag dirty if fields are filled
+      const isFilled = currentEstimate.clientName || currentEstimate.quoteNumber || currentEstimate.parts.some(p => p.name || p.hours > 0 || p.pricePerSheet > 0);
+      setHasUnsavedChanges(Boolean(isFilled));
       return;
     }
     const isDifferent = JSON.stringify(savedVer) !== JSON.stringify(currentEstimate);
@@ -436,37 +426,12 @@ export default function App() {
   };
 
   const handleCreateNewEstimate = () => {
-    const dateStr = new Date().toISOString().split('T')[0];
-    const newEst: Estimate = {
-      id: `estimate-${Date.now()}`,
-      name: 'New Custom Parts Quote',
-      clientName: '',
-      quoteNumber: '',
-      date: dateStr,
-      hourlyRate: 100,
-      overheadPercent: 34,
-      profitPercent: 10,
-      parts: [
-        {
-          id: `part-${Date.now()}`,
-          name: '',
-          uom: 'EA',
-          hours: 0,
-          sheets: 0,
-          pricePerSheet: 0,
-          quantity: 1,
-        }
-      ],
-      shells: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
+    const newEst = createNewBlankEstimate();
     setCurrentEstimate(newEst);
     setActivePartId(newEst.parts[0].id);
     setIsPreviewMode(false);
     setIsSidebarOpen(false);
-    showToast('Created new quote template!');
+    showToast('Created fresh quote template!');
   };
 
   const handleLoadEstimate = (id: string, openPrintPreview = false) => {
@@ -494,8 +459,9 @@ export default function App() {
           setCurrentEstimate(filtered[0]);
           setActivePartId(filtered[0].parts.length > 0 ? filtered[0].parts[0].id : null);
         } else {
-          setCurrentEstimate(SEED_ESTIMATE);
-          setActivePartId('part-1');
+          const fresh = createNewBlankEstimate();
+          setCurrentEstimate(fresh);
+          setActivePartId(fresh.parts[0]?.id || null);
         }
       }
       return filtered;
