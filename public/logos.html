@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gutter Estimator - Brand Logo Review</title>
+  <title>Gutter Estimator - Brand Logo Showcase</title>
+  <link rel="icon" type="image/jpeg" href="/logos/seahawks_logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
@@ -11,7 +12,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Inter', sans-serif;
-      background: #0b0f19;
+      background: #00162B;
       color: #f1f5f9;
       padding: 40px 20px;
       min-height: 100vh;
@@ -33,19 +34,19 @@
       letter-spacing: -0.5px;
     }
     p.subtitle {
-      color: #94a3b8;
+      color: #A5ACAF;
       font-size: 15px;
     }
     .section-title {
       font-family: 'Outfit', sans-serif;
       font-size: 20px;
       font-weight: 700;
-      color: #38bdf8;
+      color: #69BE28;
       margin: 35px 0 20px;
       display: flex;
       align-items: center;
       gap: 10px;
-      border-bottom: 1px solid #1e293b;
+      border-bottom: 1px solid #0A3663;
       padding-bottom: 10px;
     }
     .badge {
@@ -53,10 +54,17 @@
       font-family: 'JetBrains Mono', monospace;
       padding: 3px 8px;
       border-radius: 6px;
-      background: #1e3a8a;
-      color: #93c5fd;
+      background: #002244;
+      color: #69BE28;
+      border: 1px solid #69BE28;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+    }
+    .featured-badge {
+      background: #69BE28;
+      color: #002244;
+      font-weight: 800;
+      border: none;
     }
     .grid {
       display: grid;
@@ -65,36 +73,39 @@
       margin-bottom: 40px;
     }
     .card {
-      background: #131b2e;
-      border: 1px solid #1e293b;
+      background: #002244;
+      border: 1px solid #0A3663;
       border-radius: 16px;
       overflow: hidden;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
       display: flex;
       flex-direction: column;
     }
+    .card.featured {
+      border: 2px solid #69BE28;
+      box-shadow: 0 0 30px rgba(105, 190, 40, 0.25);
+    }
     .card:hover {
-      border-color: #38bdf8;
+      border-color: #69BE28;
       transform: translateY(-3px);
-      box-shadow: 0 8px 30px rgba(56, 189, 248, 0.15);
     }
     .img-container {
       width: 100%;
       aspect-ratio: 1;
-      background: #090d16;
+      background: #001224;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
-      border-bottom: 1px solid #1e293b;
+      border-bottom: 1px solid #0A3663;
     }
     .img-container img {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
       border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
     }
     .card-body {
       padding: 20px;
@@ -111,19 +122,20 @@
     }
     .card-desc {
       font-size: 13px;
-      color: #94a3b8;
+      color: #A5ACAF;
       line-height: 1.5;
       margin-bottom: 16px;
     }
     .card-tag {
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.1);
+      color: #69BE28;
+      background: rgba(105, 190, 40, 0.12);
       padding: 4px 8px;
       border-radius: 4px;
       display: inline-block;
       align-self: flex-start;
+      border: 1px solid rgba(105, 190, 40, 0.3);
     }
     .btn-bar {
       margin-top: 30px;
@@ -134,16 +146,16 @@
       align-items: center;
       gap: 8px;
       padding: 12px 24px;
-      background: #2563eb;
-      color: #ffffff;
+      background: #69BE28;
+      color: #002244;
       text-decoration: none;
-      font-weight: 600;
+      font-weight: 800;
       font-size: 14px;
       border-radius: 10px;
       transition: background 0.2s;
     }
     .btn:hover {
-      background: #1d4ed8;
+      background: #5aa721;
     }
   </style>
 </head>
@@ -151,13 +163,33 @@
   <div class="container">
     <header>
       <h1>Gutter Estimator Logo Showcase</h1>
-      <p class="subtitle">Review the redesigned logo concepts below</p>
+      <p class="subtitle">Seattle Seahawks Color Palette (College Navy #002244, Action Green #69BE28, Wolf Grey #A5ACAF)</p>
     </header>
 
-    <!-- Set A: High Resolution Concepts -->
+    <!-- Selected Official Logo -->
     <div class="section-title">
-      <span>Set A: High-Resolution Industrial Concepts</span>
-      <span class="badge">Concept Renders</span>
+      <span>Official Active Logo: Seattle Seahawks Edition</span>
+      <span class="badge featured-badge">Selected &bull; Active</span>
+    </div>
+
+    <div class="grid">
+      <!-- Seahawks Official Option 2 -->
+      <div class="card featured">
+        <div class="img-container">
+          <img src="/logos/seahawks_logo.jpg" alt="Option 2: Seattle Seahawks Gutter Monogram" />
+        </div>
+        <div class="card-body">
+          <h3 class="card-title">Option 2 (Seahawks Edition): Monogram 'G' Extrusion</h3>
+          <p class="card-desc">Machined Wolf Grey steel gutter profile forming the letter 'G' on deep College Navy (#002244) with electric Action Green (#69BE28) laser sights and measurement graduations.</p>
+          <span class="card-tag">College Navy &bull; Action Green &bull; Wolf Grey</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prior Explorations -->
+    <div class="section-title">
+      <span>Concept Archive &bull; Explorations</span>
+      <span class="badge">Archive</span>
     </div>
 
     <div class="grid">
@@ -168,7 +200,7 @@
         </div>
         <div class="card-body">
           <h3 class="card-title">Option 1: Precision Roll-Form</h3>
-          <p class="card-desc">Architectural K-style gutter cross-section with an integrated measurement ruler scale, glowing water flow channel, and royal cobalt blue badge.</p>
+          <p class="card-desc">Architectural K-style gutter cross-section with an integrated measurement ruler scale and royal cobalt blue badge.</p>
           <span class="card-tag">Style: Architectural &bull; Cobalt Blue</span>
         </div>
       </div>
@@ -179,8 +211,8 @@
           <img src="/logos/concept_v2_monogram_g.jpg" alt="Option V2: Monogram G" />
         </div>
         <div class="card-body">
-          <h3 class="card-title">Option 2: Monogram 'G' Extrusion</h3>
-          <p class="card-desc">Industrial graphite/titanium badge forming the letter 'G' from a seamless metal gutter profile, paired with a laser alignment dot and precision graduations.</p>
+          <h3 class="card-title">Option 2 (Original): Monogram 'G'</h3>
+          <p class="card-desc">Graphite/slate badge forming the letter 'G' from an extruded metal gutter profile with cyan laser alignment dot.</p>
           <span class="card-tag">Style: Industrial Monogram &bull; Graphite Slate</span>
         </div>
       </div>
@@ -192,52 +224,8 @@
         </div>
         <div class="card-body">
           <h3 class="card-title">Option 3: CAD Blueprint Grid</h3>
-          <p class="card-desc">Technical engineering blueprint featuring glowing cyan architectural dimension lines, sheet metal bend callouts, and downspout connection.</p>
+          <p class="card-desc">Technical engineering blueprint featuring glowing cyan architectural dimension lines and downspout connection.</p>
           <span class="card-tag">Style: CAD Blueprint &bull; Cyan Line Art</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Set B: Google Stitch Generations -->
-    <div class="section-title">
-      <span>Set B: Google Stitch Brand Suite</span>
-      <span class="badge">Google Stitch</span>
-    </div>
-
-    <div class="grid">
-      <!-- Stitch S1 -->
-      <div class="card">
-        <div class="img-container">
-          <img src="/logos/stitch_s1_kstyle.png" alt="Stitch S1: K-Style Profile" />
-        </div>
-        <div class="card-body">
-          <h3 class="card-title">Option 4: Stitch K-Style Geometric</h3>
-          <p class="card-desc">Minimalist geometric K-style gutter silhouette on dark obsidian slate with measurement tick marks.</p>
-          <span class="card-tag">Google Stitch &bull; Minimalist</span>
-        </div>
-      </div>
-
-      <!-- Stitch S2 -->
-      <div class="card">
-        <div class="img-container">
-          <img src="/logos/stitch_s2_monogram_g.png" alt="Stitch S2: Box Profile G" />
-        </div>
-        <div class="card-body">
-          <h3 class="card-title">Option 5: Stitch Box Profile 'G'</h3>
-          <p class="card-desc">Box gutter profile shaped like a stylized letter 'G' with high-contrast cyan indicator mark.</p>
-          <span class="card-tag">Google Stitch &bull; Geometric</span>
-        </div>
-      </div>
-
-      <!-- Stitch S3 -->
-      <div class="card">
-        <div class="img-container">
-          <img src="/logos/stitch_s3_blueprint.png" alt="Stitch S3: Blueprint" />
-        </div>
-        <div class="card-body">
-          <h3 class="card-title">Option 6: Stitch Technical Blueprint</h3>
-          <p class="card-desc">Technical architectural line-art illustrating gutter bends and dimension lines in high-contrast cyan.</p>
-          <span class="card-tag">Google Stitch &bull; Blueprint</span>
         </div>
       </div>
     </div>

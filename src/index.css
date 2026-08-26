@@ -1,7 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
+  --color-seahawks-navy: #002244;
+  --color-seahawks-navy-dark: #00162B;
+  --color-seahawks-navy-light: #0A3663;
+  --color-seahawks-green: #69BE28;
+  --color-seahawks-green-hover: #5aa721;
+  --color-seahawks-green-light: #f0fdf4;
+  --color-seahawks-grey: #A5ACAF;
+  --color-seahawks-grey-light: #e2e8f0;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Outfit", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
@@ -10,7 +18,7 @@
 /* Custom Styles */
 body {
   background-color: #f8fafc;
-  color: #0f172a;
+  color: #002244;
 }
 
 /* Hide scrollbars but allow scrolling on lists */
@@ -59,25 +67,11 @@ body {
   }
 
   /* Ensure colors and backgrounds render cleanly in print */
-  .print-bg-blue {
-    background-color: #f0f7ff !important;
+  .print-bg-navy {
+    background-color: #002244 !important;
+    color: #ffffff !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-    border: 1px solid #bfdbfe !important;
-  }
-
-  .print-bg-rose {
-    background-color: #fff1f2 !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    border: 1px solid #fecdd3 !important;
-  }
-
-  .print-bg-gray {
-    background-color: #f8fafc !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    border: 1px solid #e2e8f0 !important;
   }
 
   .print-bg-green {
@@ -85,6 +79,13 @@ body {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     border: 1px solid #bbf7d0 !important;
+  }
+
+  .print-bg-gray {
+    background-color: #f8fafc !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    border: 1px solid #e2e8f0 !important;
   }
 
   /* Explicit table borders for print quality */
@@ -100,7 +101,7 @@ body {
 
   th {
     background-color: #f1f5f9 !important;
-    color: #0f172a !important;
+    color: #002244 !important;
     font-weight: 600 !important;
   }
 

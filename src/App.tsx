@@ -520,11 +520,11 @@ export default function App() {
   })();
 
   return (
-    <div className="min-h-screen flex bg-slate-50 relative font-sans text-slate-900 selection:bg-blue-100 antialiased">
-      {/* Save Success Banner */}
+    <div className="min-h-screen flex bg-slate-50 relative font-sans text-[#002244] selection:bg-[#69BE28]/30 antialiased">
+      {/* Save Success Banner (Seahawks Theme) */}
       {saveSuccessNotification && (
-        <div className="fixed top-4 right-4 z-50 bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-lg border border-emerald-500/30 flex items-center gap-2.5 animate-bounce font-medium text-sm no-print">
-          <BookmarkCheck className="w-5 h-5" />
+        <div className="fixed top-4 right-4 z-50 bg-[#002244] text-white px-4 py-3 rounded-xl shadow-xl border-2 border-[#69BE28] flex items-center gap-2.5 animate-bounce font-medium text-sm no-print">
+          <BookmarkCheck className="w-5 h-5 text-[#69BE28]" />
           <span>Estimate saved successfully to Cloud Firestore!</span>
         </div>
       )}
@@ -534,8 +534,8 @@ export default function App() {
          ---------------------------------------------------- */}
       {isSidebarOpen && (
         <div className="fixed inset-0 z-40 flex no-print">
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onClick={() => setIsSidebarOpen(false)} />
-          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-slate-900 animate-slide-in">
+          <div className="fixed inset-0 bg-[#00162B]/75 backdrop-blur-xs transition-opacity" onClick={() => setIsSidebarOpen(false)} />
+          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-[#00162B] animate-slide-in shadow-2xl">
             <EstimatesList
               estimates={estimates}
               currentEstimateId={currentEstimate.id}
@@ -555,27 +555,27 @@ export default function App() {
       {isPreviewMode ? (
         <div className="flex-1 flex flex-col min-h-screen">
           {/* Preview banner floating */}
-          <div className="bg-slate-900 text-white py-3.5 px-6 sticky top-0 z-30 flex items-center justify-between shadow-md no-print">
+          <div className="bg-[#002244] text-white py-3.5 px-6 sticky top-0 z-30 flex items-center justify-between shadow-md no-print border-b border-[#A5ACAF]/30">
             <div className="flex items-center gap-3">
               <span className="flex h-2.5 w-2.5 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#69BE28] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#69BE28]"></span>
               </span>
               <p className="text-sm font-semibold tracking-wide">
-                Print Preview Active: <span className="font-mono text-slate-350">{currentEstimate.quoteNumber}</span>
+                Print Preview Active: <span className="font-mono text-[#A5ACAF]">{currentEstimate.quoteNumber}</span>
               </p>
             </div>
             <div className="flex items-center gap-2.5">
               <button
                 onClick={() => setIsPreviewMode(false)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-755 text-slate-200 hover:text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border border-slate-700/80 cursor-pointer"
+                className="px-4 py-2 bg-[#00162B] hover:bg-[#0A2C52] text-slate-200 hover:text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border border-[#A5ACAF]/40 cursor-pointer"
               >
-                <ArrowLeft className="w-3.5 h-3.5" />
+                <ArrowLeft className="w-3.5 h-3.5 text-[#69BE28]" />
                 <span>Return to Editor</span>
               </button>
               <button
                 onClick={handlePrintTrigger}
-                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer animate-pulse"
+                className="px-5 py-2 bg-[#69BE28] hover:bg-[#5aa721] text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#69BE28]/25 transition-all cursor-pointer"
               >
                 <Printer className="w-3.5 h-3.5" />
                 <span>Print Document</span>
@@ -611,24 +611,24 @@ export default function App() {
           {/* Main workspace scrollable area */}
           <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
             
-            {/* Tabs */}
+            {/* Tabs (Seahawks Palette) */}
             <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
               <button
                 onClick={() => setActiveTab('shell')}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
                   activeTab === 'shell' 
-                    ? 'bg-blue-600 text-white shadow-sm' 
-                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                    ? 'bg-[#002244] text-white shadow-md ring-1 ring-[#69BE28]' 
+                    : 'bg-white text-[#002244] hover:bg-slate-100 border border-[#A5ACAF]/40'
                 }`}
               >
                 Gutter Shell Estimator
               </button>
               <button
                 onClick={() => setActiveTab('parts')}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors cursor-pointer ${
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
                   activeTab === 'parts' 
-                    ? 'bg-blue-600 text-white shadow-sm' 
-                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                    ? 'bg-[#002244] text-white shadow-md ring-1 ring-[#69BE28]' 
+                    : 'bg-white text-[#002244] hover:bg-slate-100 border border-[#A5ACAF]/40'
                 }`}
               >
                 Gutter Parts Estimator
@@ -675,16 +675,16 @@ export default function App() {
           </main>
 
           {/* Footer with App Version & Fixed Build Timestamp */}
-          <footer className="no-print border-t border-slate-200 mt-auto bg-white py-4 text-center text-[11px] text-slate-400 font-sans tracking-wide">
+          <footer className="no-print border-t border-slate-200 mt-auto bg-white py-4 text-center text-[11px] text-slate-500 font-sans tracking-wide">
             <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div className="flex items-center gap-2">
-                <span>Gutter Estimator &copy; 2026.</span>
-                <span className="font-mono text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200">
+                <span className="font-semibold text-[#002244]">Gutter Estimator &copy; 2026.</span>
+                <span className="font-mono text-[10px] bg-[#002244] text-white px-2 py-0.5 rounded border border-[#A5ACAF]/40">
                   v{APP_VERSION}
                 </span>
               </div>
-              <p className="font-mono text-[10px] text-slate-400">
-                Cloud Sync: {isCloudConnected ? 'Connected (Firestore)' : 'Offline Cache'} &bull; Last Deployed: {formattedBuildDate}
+              <p className="font-mono text-[10px] text-slate-500">
+                Cloud Sync: <span className="font-semibold text-[#69BE28]">{isCloudConnected ? 'Connected (Firestore)' : 'Offline Cache'}</span> &bull; Last Deployed: {formattedBuildDate}
               </p>
             </div>
           </footer>

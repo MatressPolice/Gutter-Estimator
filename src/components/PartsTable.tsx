@@ -1,5 +1,5 @@
-import { Plus, Trash2, Copy, MoveUp, MoveDown, HelpCircle, AlertCircle } from 'lucide-react';
-import { PartItem, PartCalculations } from '../types';
+import { Plus, Trash2, Copy, MoveUp, MoveDown, AlertCircle } from 'lucide-react';
+import { PartItem } from '../types';
 import { calculatePart, formatCurrency } from '../utils/calculations';
 
 interface PartsTableProps {
@@ -30,11 +30,11 @@ export default function PartsTable({
   onMovePart,
 }: PartsTableProps) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+    <div className="bg-white rounded-xl border border-[#A5ACAF]/40 shadow-xs overflow-hidden">
       {/* Table Title and Actions */}
-      <div className="px-5 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-slate-50/50 no-print">
+      <div className="px-5 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-slate-50/70 no-print">
         <div>
-          <h2 className="font-display font-semibold text-base text-slate-900 flex items-center gap-2">
+          <h2 className="font-display font-bold text-base text-[#002244] flex items-center gap-2">
             Estimating Sheet
           </h2>
           <p className="text-xs text-slate-500 font-sans">
@@ -43,7 +43,7 @@ export default function PartsTable({
         </div>
         <button
           onClick={onAddPart}
-          className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+          className="px-4 py-2 bg-[#69BE28] hover:bg-[#5aa721] text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow-md shadow-[#69BE28]/25 transition-all cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>Add Part / Line</span>
@@ -56,11 +56,11 @@ export default function PartsTable({
           {/* Table Headers */}
           <thead>
             <tr className="text-[10px] font-bold uppercase tracking-wider border-b border-slate-200 divide-x divide-slate-100">
-              <th className="w-[160px] px-3 py-2 font-display text-slate-500 bg-slate-50">Part Name</th>
-              <th className="min-w-[140px] px-3 py-2 font-display text-sky-800 bg-sky-50/80">Labor Setup</th>
-              <th className="min-w-[140px] px-3 py-2 font-display text-rose-800 bg-rose-50/80">Material Setup</th>
-              <th className="min-w-[160px] px-3 py-2 font-display text-violet-800 bg-violet-50/80">Markups & Totals</th>
-              <th className="min-w-[140px] px-3 py-2 font-display text-slate-500 bg-slate-50">Unit Pricing</th>
+              <th className="w-[160px] px-3 py-2 font-display text-[#002244] bg-slate-50">Part Name</th>
+              <th className="min-w-[140px] px-3 py-2 font-display text-[#002244] bg-slate-100/70">Labor Setup</th>
+              <th className="min-w-[140px] px-3 py-2 font-display text-[#002244] bg-slate-50">Material Setup</th>
+              <th className="min-w-[160px] px-3 py-2 font-display text-[#002244] bg-slate-100/70">Markups & Totals</th>
+              <th className="min-w-[140px] px-3 py-2 font-display text-[#002244] bg-[#f0fdf4]">Unit Pricing</th>
               <th className="w-[50px] px-2 py-2 text-center text-slate-500 bg-slate-50 no-print">Actions</th>
             </tr>
           </thead>
@@ -72,10 +72,10 @@ export default function PartsTable({
                 <td colSpan={6} className="px-6 py-12 text-center text-sm text-slate-400 bg-slate-50/30">
                   <div className="flex flex-col items-center justify-center gap-3">
                     <AlertCircle className="w-10 h-10 text-slate-300" />
-                    <p className="font-medium text-slate-500">No parts listed in this estimate.</p>
+                    <p className="font-medium text-[#002244]">No parts listed in this estimate.</p>
                     <button
                       onClick={onAddPart}
-                      className="mt-1 text-sm font-semibold text-blue-600 hover:text-blue-800 underline cursor-pointer"
+                      className="mt-1 text-sm font-bold text-[#69BE28] hover:text-[#5aa721] underline cursor-pointer"
                     >
                       Click here to add your first part row
                     </button>
@@ -91,8 +91,8 @@ export default function PartsTable({
                   <tr
                     key={part.id}
                     onClick={() => onSelectPart(part.id)}
-                    className={`group divide-x divide-slate-100 hover:bg-slate-50/50 transition-colors cursor-pointer ${
-                      isSelected ? 'bg-blue-50/20 border-l-4 border-l-blue-500' : 'border-l-4 border-l-transparent'
+                    className={`group divide-x divide-slate-100 hover:bg-slate-50/80 transition-colors cursor-pointer ${
+                      isSelected ? 'bg-[#002244]/5 border-l-4 border-l-[#69BE28]' : 'border-l-4 border-l-transparent'
                     }`}
                   >
                     {/* Part Name */}
@@ -103,7 +103,7 @@ export default function PartsTable({
                           value={part.name.match(/^\[PART\d+\]$/i) ? '' : part.name}
                           onClick={(e) => e.stopPropagation()}
                           onChange={(e) => onUpdatePart(part.id, 'name', e.target.value)}
-                          className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded px-2 py-1.5 font-medium outline-hidden transition-all text-slate-900 text-xs shadow-2xs"
+                          className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#002244] focus:ring-1 focus:ring-[#002244] rounded px-2 py-1.5 font-medium outline-hidden transition-all text-[#002244] text-xs shadow-2xs"
                         />
                         <div className="flex items-center justify-between text-[11px] px-1">
                           <span className="text-slate-500 font-semibold tracking-wide text-[10px]">UOM:</span>
@@ -111,7 +111,7 @@ export default function PartsTable({
                             value={part.uom || ''}
                             onChange={(e) => onUpdatePart(part.id, 'uom', e.target.value as 'EA' | 'LF')}
                             onClick={(e) => e.stopPropagation()}
-                            className="w-16 bg-white border border-slate-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded px-1.5 py-0.5 text-[10px] font-bold text-slate-700 shadow-2xs outline-hidden cursor-pointer"
+                            className="w-16 bg-white border border-slate-200 focus:border-[#002244] focus:ring-1 focus:ring-[#002244] rounded px-1.5 py-0.5 text-[10px] font-bold text-[#002244] shadow-2xs outline-hidden cursor-pointer"
                           >
                             <option value="" disabled></option>
                             <option value="EA">EA</option>
@@ -122,10 +122,10 @@ export default function PartsTable({
                     </td>
 
                     {/* Labor Setup */}
-                    <td className="px-3 py-2.5 align-top bg-sky-50/30">
+                    <td className="px-3 py-2.5 align-top bg-slate-50/30">
                       <div className="flex flex-col gap-1.5">
                         <div className="flex justify-between items-center text-[11px]">
-                          <span className="text-sky-900 font-medium">#OfHours:</span>
+                          <span className="text-[#002244] font-medium">#OfHours:</span>
                           <input
                             type="number"
                             min="0"
@@ -138,10 +138,10 @@ export default function PartsTable({
                           />
                         </div>
                         <div className="flex justify-between items-center text-[11px]">
-                          <span className="text-sky-700">$/Hour:</span>
-                          <span className="font-mono text-sky-700">{formatCurrency(hourlyRate)}</span>
+                          <span className="text-slate-600">$/Hour:</span>
+                          <span className="font-mono text-[#002244] font-medium">{formatCurrency(hourlyRate)}</span>
                         </div>
-                        <div className="flex justify-between items-center text-[11px] mt-0.5 pt-1 border-t border-sky-200/60 text-sky-950 bg-sky-100/50 px-1.5 py-1 rounded border-sky-200">
+                        <div className="flex justify-between items-center text-[11px] mt-0.5 pt-1 border-t border-slate-200 text-[#002244] bg-slate-100/60 px-1.5 py-1 rounded">
                           <span className="font-semibold">Hours$:</span>
                           <span className="font-mono font-bold">{formatCurrency(calcs.hoursCost)}</span>
                         </div>
@@ -149,10 +149,10 @@ export default function PartsTable({
                     </td>
 
                     {/* Material Setup */}
-                    <td className="px-3 py-2.5 align-top bg-rose-50/30">
+                    <td className="px-3 py-2.5 align-top bg-slate-50/30">
                       <div className="flex flex-col gap-1.5">
                         <div className="flex justify-between items-center text-[11px]">
-                          <span className="text-rose-900 font-medium">#Sheets:</span>
+                          <span className="text-[#002244] font-medium">#Sheets:</span>
                           <input
                             type="number"
                             min="0"
@@ -165,7 +165,7 @@ export default function PartsTable({
                           />
                         </div>
                         <div className="flex justify-between items-center text-[11px]">
-                          <span className="text-rose-900 font-medium">$PerSheet:</span>
+                          <span className="text-[#002244] font-medium">$PerSheet:</span>
                           <div className="relative">
                             <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[9px] text-orange-500 font-mono font-bold">$</span>
                             <input
@@ -180,7 +180,7 @@ export default function PartsTable({
                             />
                           </div>
                         </div>
-                        <div className="flex justify-between items-center text-[11px] mt-0.5 pt-1 border-t border-rose-200/60 text-rose-950 bg-rose-100/50 px-1.5 py-1 rounded border-rose-200">
+                        <div className="flex justify-between items-center text-[11px] mt-0.5 pt-1 border-t border-slate-200 text-[#002244] bg-slate-100/60 px-1.5 py-1 rounded">
                           <span className="font-semibold">Mat. Costs:</span>
                           <span className="font-mono font-bold">{formatCurrency(calcs.materialCosts)}</span>
                         </div>
@@ -188,28 +188,28 @@ export default function PartsTable({
                     </td>
 
                     {/* Markups & Totals */}
-                    <td className="px-3 py-2.5 align-top bg-violet-50/30">
+                    <td className="px-3 py-2.5 align-top bg-slate-50/50">
                       <div className="flex flex-col gap-1">
                         <div className="flex justify-between items-center text-[11px]">
-                          <span className="text-violet-900 font-medium">SubTotal:</span>
-                          <span className="font-mono text-violet-950 bg-violet-100/60 px-1 py-0.5 rounded border border-violet-200/50">{formatCurrency(calcs.subTotal)}</span>
+                          <span className="text-[#002244] font-medium">SubTotal:</span>
+                          <span className="font-mono text-[#002244] bg-white px-1 py-0.5 rounded border border-slate-200 font-semibold">{formatCurrency(calcs.subTotal)}</span>
                         </div>
-                        <div className="flex justify-between items-center text-[10px] text-violet-700 pl-1">
+                        <div className="flex justify-between items-center text-[10px] text-slate-600 pl-1">
                           <span>+ {overheadPercent}% Overhead:</span>
                           <span className="font-mono">{formatCurrency(calcs.overhead)}</span>
                         </div>
-                        <div className="flex justify-between items-center text-[10px] text-violet-700 pl-1">
+                        <div className="flex justify-between items-center text-[10px] text-[#69BE28] font-bold pl-1">
                           <span>+ {profitPercent}% Profit:</span>
                           <span className="font-mono">{formatCurrency(calcs.profit)}</span>
                         </div>
-                        <div className="flex justify-between items-center text-xs mt-0.5 pt-1 border-t border-violet-200/80 font-bold text-violet-950">
+                        <div className="flex justify-between items-center text-xs mt-0.5 pt-1 border-t border-slate-200 font-bold text-[#002244]">
                           <span>TOTAL:</span>
                           <span className="font-mono text-sm">{formatCurrency(calcs.grandTotal)}</span>
                         </div>
                       </div>
                     </td>
 
-                    {/* Unit Pricing */}
+                    {/* Unit Pricing (Action Green Accent) */}
                     <td className="px-3 py-2.5 align-top bg-white">
                       <div className="flex flex-col gap-1.5">
                         <div className="flex justify-between items-center text-[11px]">
@@ -226,10 +226,10 @@ export default function PartsTable({
                           />
                         </div>
                         
-                        <div className={`flex justify-between items-center text-[11px] mt-0.5 pt-1 border-t px-1.5 py-1 rounded ${part.quantity > 0 ? 'bg-emerald-50/60 border-emerald-200 text-emerald-950' : 'bg-rose-50/40 border-rose-200 text-rose-950'}`}>
-                          <span className="font-semibold text-slate-700">Price{part.uom ? `/${part.uom}` : ''}:</span>
+                        <div className={`flex justify-between items-center text-[11px] mt-0.5 pt-1 border-t px-1.5 py-1 rounded ${part.quantity > 0 ? 'bg-[#f0fdf4] border-[#69BE28]/40 text-[#002244]' : 'bg-rose-50 border-rose-200 text-rose-950'}`}>
+                          <span className="font-bold text-[#002244]">Price{part.uom ? `/${part.uom}` : ''}:</span>
                           {part.quantity > 0 ? (
-                            <span className="font-mono font-bold text-sm tracking-tight text-emerald-900">
+                            <span className="font-mono font-extrabold text-sm tracking-tight text-[#002244]">
                               {formatCurrency(calcs.pricePerEa)}
                             </span>
                           ) : (
@@ -247,7 +247,7 @@ export default function PartsTable({
                       <div className="flex flex-col items-center justify-center gap-2 opacity-40 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => onDuplicatePart(part.id)}
-                          className="p-1.5 hover:bg-slate-200 text-slate-500 hover:text-slate-800 rounded transition-colors cursor-pointer"
+                          className="p-1.5 hover:bg-slate-200 text-slate-500 hover:text-[#002244] rounded transition-colors cursor-pointer"
                           title="Duplicate row"
                         >
                           <Copy className="w-4 h-4" />
@@ -256,7 +256,7 @@ export default function PartsTable({
                           <button
                             onClick={() => onMovePart(index, 'up')}
                             disabled={index === 0}
-                            className="p-1 hover:bg-slate-200 text-slate-500 hover:text-slate-800 disabled:opacity-30 rounded transition-colors cursor-pointer"
+                            className="p-1 hover:bg-slate-200 text-slate-500 hover:text-[#002244] disabled:opacity-30 rounded transition-colors cursor-pointer"
                             title="Move row up"
                           >
                             <MoveUp className="w-4 h-4" />
@@ -264,7 +264,7 @@ export default function PartsTable({
                           <button
                             onClick={() => onMovePart(index, 'down')}
                             disabled={index === parts.length - 1}
-                            className="p-1 hover:bg-slate-200 text-slate-500 hover:text-slate-800 disabled:opacity-30 rounded transition-colors cursor-pointer"
+                            className="p-1 hover:bg-slate-200 text-slate-500 hover:text-[#002244] disabled:opacity-30 rounded transition-colors cursor-pointer"
                             title="Move row down"
                           >
                             <MoveDown className="w-4 h-4" />
