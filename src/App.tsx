@@ -609,7 +609,7 @@ export default function App() {
           </div>
 
           {/* Centered Document Sheet */}
-          <div className="flex-1 bg-slate-100 py-10 px-4 sm:px-6 overflow-y-auto">
+          <div className="flex-1 bg-slate-100 py-10 px-4 sm:px-6 overflow-y-auto print:bg-white print:p-0 print:m-0 print:overflow-visible print:block">
             <PrintDocument estimate={currentEstimate} totals={totals} />
           </div>
         </div>
@@ -713,13 +713,12 @@ export default function App() {
               </p>
             </div>
           </footer>
+          {/* Embedded print sheet for printing directly from editor */}
+          <div className="hidden print:block">
+            <PrintDocument estimate={currentEstimate} totals={totals} />
+          </div>
         </div>
       )}
-
-      {/* Embedded print sheet */}
-      <div className="hidden print:block">
-        <PrintDocument estimate={currentEstimate} totals={totals} />
-      </div>
     </div>
   );
 }

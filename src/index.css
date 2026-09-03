@@ -44,6 +44,17 @@ body {
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
+    display: block !important;
+  }
+
+  /* Prevent any flex or multi-column splitting on parent wrappers */
+  body, #root, #root > div, main {
+    display: block !important;
+    width: 100% !important;
+    min-height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
   }
 
   /* Hide UI elements */

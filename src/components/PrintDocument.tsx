@@ -28,7 +28,7 @@ export default function PrintDocument({
   const hasParts = estimate.parts && estimate.parts.length > 0;
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full flex flex-col items-center print:block print:w-full print:p-0 print:m-0">
       {/* View Mode Toggle (Shown on screen in preview, hidden during actual print) */}
       <div className="mb-4 no-print flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-2xs text-xs">
         <span className="font-semibold text-slate-500">Printout Layout:</span>
@@ -57,7 +57,7 @@ export default function PrintDocument({
       </div>
 
       {/* Standard 8.5" x 11" Letter Document Container */}
-      <div className="bg-white p-6 sm:p-8 border border-slate-300 rounded-xl shadow-lg print:shadow-none print:border-none print:p-0 print:m-0 mx-auto print-container max-w-[7.6in] w-full font-sans text-[#002244] leading-normal box-border">
+      <div className="bg-white p-6 sm:p-8 border border-slate-300 rounded-xl shadow-lg print:shadow-none print:border-none print:p-0 print:m-0 print:max-w-full mx-auto print-container max-w-[7.6in] w-full font-sans text-[#002244] leading-normal box-border">
         
         {/* 1. Header / Letterhead with Seattle Seahawks Light Brand */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 border-b-2 border-[#002244] pb-5 mb-6">
