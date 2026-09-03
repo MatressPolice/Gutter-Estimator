@@ -30,12 +30,20 @@ body {
   scrollbar-width: none;
 }
 
+@page {
+  size: letter portrait;
+  margin: 0.4in;
+}
+
 /* Print Stylesheet */
 @media print {
-  body {
+  html, body {
     background-color: #ffffff !important;
     color: #000000 !important;
-    font-size: 11pt !important;
+    font-size: 9pt !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   /* Hide UI elements */
@@ -88,21 +96,27 @@ body {
     border: 1px solid #e2e8f0 !important;
   }
 
-  /* Explicit table borders for print quality */
+  /* Explicit table borders and fixed layout for 8.5x11 page width */
   table {
     border-collapse: collapse !important;
     width: 100% !important;
+    table-layout: fixed !important;
   }
 
   th, td {
     border: 1px solid #cbd5e1 !important;
-    padding: 6px 8px !important;
+    padding: 3px 5px !important;
+    font-size: 8pt !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
   }
 
   th {
-    background-color: #f1f5f9 !important;
-    color: #002244 !important;
-    font-weight: 600 !important;
+    background-color: #002244 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   /* Section page break rules */

@@ -70,3 +70,21 @@ export interface EstimateTotals {
   totalGrandTotal: number;
   averagePricePerEa: number;
 }
+
+export interface ComprehensiveTotals {
+  partsTotalHours: number;
+  partsTotalSheets: number;
+  partsTotalHoursCost: number;
+  partsTotalMaterialCosts: number;
+  partsTotalSubTotal: number;
+  partsTotalOverhead: number;
+  partsTotalProfit: number;
+  partsGrandTotal: number;
+
+  shellsTotalOrderLF: number;
+  shellsTotalCustomerLF: number;
+  shellsGrandTotal: number;
+
+  combinedGrandTotal: number;
+}
+

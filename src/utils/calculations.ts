@@ -1,4 +1,4 @@
-import { PartItem, PartCalculations, EstimateTotals, GutterShellItem, GutterShellCalculations } from '../types';
+import { PartItem, PartCalculations, EstimateTotals, GutterShellItem, GutterShellCalculations, Estimate, ComprehensiveTotals } from '../types';
 
 /**
  * Calculates all computed columns for a single gutter shell item based on its inputs.
@@ -127,6 +127,46 @@ export function calculateEstimateTotals(
     averagePricePerEa,
   };
 }
+
+/**
+ * Calculates unified totals for both Gutter Shells and Gutter Parts.
+ */
+export function calculateComprehensiveTotals(estimate: Estimate): ComprehensiveTotals {
+  const partsTotals = calculateEstimateTotals(estimate.parts || [], {
+    hourlyRate: estimate.hourlyRate,
+    overheadPercent: estimate.overheadPercent,
+    profitPercent: estimate.profitPercent,
+  });
+
+  let shellsTotalOrderLF = 0;
+  let shellsTotalCustomerLF = 0;
+  let shellsGrandTotal = 0;
+
+  (estimate.shells || []).forEach((shell) => {
+    const calcs = calculateGutterShell(shell);
+    shellsTotalOrderLF += Number(shell.orderLF) || 0;
+    shellsTotalCustomerLF += Number(shell.customerLF) || 0;
+    shellsGrandTotal += calcs.total || 0;
+  });
+
+  return {
+    partsTotalHours: partsTotals.totalHours,
+    partsTotalSheets: partsTotals.totalSheets,
+    partsTotalHoursCost: partsTotals.totalHoursCost,
+    partsTotalMaterialCosts: partsTotals.totalMaterialCosts,
+    partsTotalSubTotal: partsTotals.totalSubTotal,
+    partsTotalOverhead: partsTotals.totalOverhead,
+    partsTotalProfit: partsTotals.totalProfit,
+    partsGrandTotal: partsTotals.totalGrandTotal,
+
+    shellsTotalOrderLF,
+    shellsTotalCustomerLF,
+    shellsGrandTotal,
+
+    combinedGrandTotal: partsTotals.totalGrandTotal + shellsGrandTotal,
+  };
+}
+
 
 /**
  * Formats a currency value.
