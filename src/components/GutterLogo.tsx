@@ -1,4 +1,5 @@
 import React from 'react';
+import logoImg from '../assets/logo_light_arctic.jpg';
 
 interface LogoProps {
   variant?: string;
@@ -9,8 +10,8 @@ interface LogoProps {
 /**
  * Official Gutter Estimator Brand Logo:
  * Machined 'G' Monogram formed by a seamless roll-formed gutter section,
- * precision caliper dial, and framing ruler in the official Seattle Seahawks Color Palette
- * (College Navy #002244, Action Green #69BE28, Wolf Grey #A5ACAF).
+ * precision caliper dial, and framing ruler in the official Seattle Seahawks Light Color Palette
+ * (Arctic White, Wolf Grey #A5ACAF, Action Green #69BE28, College Navy #002244).
  */
 export default function GutterLogo({
   size = 46,
@@ -18,11 +19,11 @@ export default function GutterLogo({
 }: LogoProps) {
   return (
     <div
-      className={`relative inline-flex items-center justify-center shrink-0 overflow-hidden rounded-xl shadow-xs border border-slate-200 bg-white ${className}`}
+      className={`relative inline-flex items-center justify-center shrink-0 overflow-hidden rounded-xl shadow-xs border border-slate-200/80 bg-white ${className}`}
       style={{ width: size, height: size }}
     >
       <img
-        src="/logos/seahawks_logo.jpg"
+        src={logoImg}
         alt="Gutter Estimator Logo"
         width={size}
         height={size}
