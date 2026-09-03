@@ -18,7 +18,7 @@ export default function GutterLogo({
 }: LogoProps) {
   return (
     <div
-      className={`relative inline-flex items-center justify-center shrink-0 overflow-hidden rounded-xl shadow-md border border-[#A5ACAF]/30 bg-[#00162B] ${className}`}
+      className={`relative inline-flex items-center justify-center shrink-0 overflow-hidden rounded-xl shadow-xs border border-slate-200 bg-white ${className}`}
       style={{ width: size, height: size }}
     >
       <img
