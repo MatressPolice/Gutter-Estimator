@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Estimate, EstimateTotals } from '../types';
 import { calculatePart, calculateGutterShell, calculateComprehensiveTotals, formatCurrency } from '../utils/calculations';
 import GutterLogo from './GutterLogo';
@@ -14,7 +14,14 @@ export default function PrintDocument({
   viewMode = 'detailed' 
 }: PrintDocumentProps) {
   const [activeMode, setActiveMode] = useState<'detailed' | 'client'>(viewMode);
-  const compTotals = calculateComprehensiveTotals(estimate);
+
+  const { compTotals, shellCalcs, partCalcs } = useMemo(() => {
+    return {
+      compTotals: calculateComprehensiveTotals(estimate),
+      shellCalcs: (estimate.shells || []).map(shell => calculateGutterShell(shell)),
+      partCalcs: (estimate.parts || []).map(part => calculatePart(part, estimate))
+    };
+  }, [estimate]);
 
   const dateFormatted = estimate.date
     ? new Date(estimate.date).toLocaleDateString('en-US', {
@@ -136,7 +143,7 @@ export default function PrintDocument({
                 </thead>
                 <tbody className="divide-y divide-slate-200">
                   {estimate.shells.map((shell, idx) => {
-                    const calcs = calculateGutterShell(shell);
+                    const calcs = shellCalcs[idx];
                     return (
                       <tr key={shell.id || idx} className="hover:bg-slate-50/50">
                         <td className="px-2.5 py-1.5 text-left font-bold text-[#002244]">
@@ -191,7 +198,7 @@ export default function PrintDocument({
                 </thead>
                 <tbody className="divide-y divide-slate-200">
                   {estimate.shells.map((shell, idx) => {
-                    const calcs = calculateGutterShell(shell);
+                    const calcs = shellCalcs[idx];
                     return (
                       <tr key={shell.id || idx}>
                         <td className="px-3 py-1.5 text-left">
@@ -246,7 +253,7 @@ export default function PrintDocument({
                 </thead>
                 <tbody className="divide-y divide-slate-200">
                   {estimate.parts.map((part, idx) => {
-                    const calcs = calculatePart(part, estimate);
+                    const calcs = partCalcs[idx];
                     return (
                       <tr key={part.id || idx} className="hover:bg-slate-50/50">
                         <td className="px-2.5 py-1.5 text-left font-bold text-[#002244] truncate" title={part.name}>
@@ -296,7 +303,7 @@ export default function PrintDocument({
                 </thead>
                 <tbody className="divide-y divide-slate-200">
                   {estimate.parts.map((part, idx) => {
-                    const calcs = calculatePart(part, estimate);
+                    const calcs = partCalcs[idx];
                     return (
                       <tr key={part.id || idx}>
                         <td className="px-3 py-1.5 text-left font-bold text-[#002244]">
