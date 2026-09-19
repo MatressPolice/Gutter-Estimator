@@ -14,7 +14,7 @@ import {
 import { Estimate } from './types';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCvzo5EelYJtwx05L-K0m9_-duZvUuUfuY",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "gutter-estimator-pro.firebaseapp.com",
   projectId: "gutter-estimator-pro",
   storageBucket: "gutter-estimator-pro.firebasestorage.app",
