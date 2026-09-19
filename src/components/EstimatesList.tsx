@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Database, Search, Calendar, Trash2, X, PlusCircle, Copy, Edit3, Printer, CheckCircle2 } from 'lucide-react';
 import { Estimate } from '../types';
 import { formatCurrency } from '../utils/calculations';
@@ -24,7 +24,19 @@ export default function EstimatesList({
 }: EstimatesListProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filtered = estimates.filter((e) => {
+  const estimatesWithTotals = useMemo(() => {
+    return estimates.map((item) => {
+      const totalSum = (item.parts || []).reduce((sum, part) => {
+        const sub = (part.hours * item.hourlyRate) + (part.sheets * part.pricePerSheet);
+        const oh = sub * (item.overheadPercent / 100);
+        const pr = sub * (item.profitPercent / 100);
+        return sum + sub + oh + pr;
+      }, 0);
+      return { ...item, totalSum };
+    });
+  }, [estimates]);
+
+  const filtered = estimatesWithTotals.filter((e) => {
     const query = searchQuery.toLowerCase();
     return (
       e.name.toLowerCase().includes(query) ||
@@ -83,12 +95,6 @@ export default function EstimatesList({
         ) : (
           filtered.map((item) => {
             const isCurrent = item.id === currentEstimateId;
-            const totalSum = (item.parts || []).reduce((sum, part) => {
-              const sub = (part.hours * item.hourlyRate) + (part.sheets * part.pricePerSheet);
-              const oh = sub * (item.overheadPercent / 100);
-              const pr = sub * (item.profitPercent / 100);
-              return sum + sub + oh + pr;
-            }, 0);
 
             return (
               <div
@@ -128,7 +134,7 @@ export default function EstimatesList({
                   <div>
                     <span className="text-[10px] text-slate-400 block">Total Est:</span>
                     <span className="font-mono text-sm font-extrabold text-[#69BE28]">
-                      {formatCurrency(totalSum)}
+                      {formatCurrency(item.totalSum)}
                     </span>
                   </div>
                   <span className="text-[10px] text-[#A5ACAF] font-medium flex items-center gap-1 font-mono">
