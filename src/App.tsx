@@ -3,7 +3,8 @@ import { Printer, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { Estimate, PartItem, EstimateTotals, GutterShellItem } from './types';
 import { calculateEstimateTotals } from './utils/calculations';
 import { APP_VERSION, BUILD_TIMESTAMP } from './version';
-import { saveEstimateToCloud, deleteEstimateFromCloud, subscribeToEstimates } from './firebase';
+import { saveEstimateToCloud, deleteEstimateFromCloud, subscribeToEstimates, auth } from './firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import Header from './components/Header';
 import RatesConfig from './components/RatesConfig';
 import PartsTable from './components/PartsTable';
@@ -15,10 +16,11 @@ import SaveEstimateModal from './components/SaveEstimateModal';
 // ----------------------------------------------------
 // DEFAULT BLANK ESTIMATE CREATOR
 // ----------------------------------------------------
-function createNewBlankEstimate(): Estimate {
+function createNewBlankEstimate(userId: string | null = null): Estimate {
   const dateStr = new Date().toISOString().split('T')[0];
   return {
     id: `estimate-${Date.now()}`,
+    userId: userId || undefined,
     name: 'New Custom Parts Quote',
     clientName: '',
     quoteNumber: '',
@@ -48,6 +50,7 @@ export default function App() {
   // STATES
   // ----------------------------------------------------
   const [estimates, setEstimates] = useState<Estimate[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const [currentEstimate, setCurrentEstimate] = useState<Estimate>(createNewBlankEstimate);
   const [activePartId, setActivePartId] = useState<string | null>(null);
   const [activeShellId, setActiveShellId] = useState<string | null>(null);
@@ -58,6 +61,19 @@ export default function App() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isCloudConnected, setIsCloudConnected] = useState(true);
+
+  // Authentication listener
+  useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+        setCurrentEstimate(prev => ({ ...prev, userId: user.uid }));
+      } else {
+        setUserId(null);
+      }
+    });
+    return () => unsubscribeAuth();
+  }, []);
 
   // ----------------------------------------------------
   // PERSISTENCE ENGINE (FIRESTORE CLOUD + LOCAL CACHE)
@@ -82,8 +98,11 @@ export default function App() {
       }
     }
 
+    if (!userId) return;
+
     // 2. Real-time Cloud Firestore subscription
     const unsubscribe = subscribeToEstimates(
+      userId,
       (cloudEstimates) => {
         setIsCloudConnected(true);
         // Filter out any legacy seed estimates
@@ -115,7 +134,7 @@ export default function App() {
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [userId]);
 
   // Track unsaved changes relative to stored version
   useEffect(() => {
@@ -426,7 +445,7 @@ export default function App() {
   };
 
   const handleCreateNewEstimate = () => {
-    const newEst = createNewBlankEstimate();
+    const newEst = createNewBlankEstimate(userId);
     setCurrentEstimate(newEst);
     setActivePartId(newEst.parts[0].id);
     setIsPreviewMode(false);
@@ -459,7 +478,7 @@ export default function App() {
           setCurrentEstimate(filtered[0]);
           setActivePartId(filtered[0].parts.length > 0 ? filtered[0].parts[0].id : null);
         } else {
-          const fresh = createNewBlankEstimate();
+          const fresh = createNewBlankEstimate(userId);
           setCurrentEstimate(fresh);
           setActivePartId(fresh.parts[0]?.id || null);
         }

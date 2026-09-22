@@ -1,4 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 import {
   getFirestore,
   collection,
@@ -9,6 +10,7 @@ import {
   onSnapshot,
   query,
   orderBy,
+  where,
   enableIndexedDbPersistence
 } from 'firebase/firestore';
 import { Estimate } from './types';
@@ -25,6 +27,12 @@ const firebaseConfig = {
 // Initialize Firebase App singleton
 export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const db = getFirestore(app);
+export const auth = getAuth(app);
+
+// Attempt anonymous sign-in immediately
+signInAnonymously(auth).catch((error) => {
+  console.error("Error signing in anonymously:", error);
+});
 
 const ESTIMATES_COLLECTION = 'estimates';
 
@@ -60,11 +68,15 @@ export async function deleteEstimateFromCloud(id: string): Promise<void> {
 /**
  * Fetches all estimates from Cloud Firestore once.
  */
-export async function fetchEstimatesFromCloud(): Promise<Estimate[]> {
+export async function fetchEstimatesFromCloud(userId: string): Promise<Estimate[]> {
   try {
-    const q = query(collection(db, ESTIMATES_COLLECTION), orderBy('updatedAt', 'desc'));
+    const q = query(
+      collection(db, ESTIMATES_COLLECTION),
+      where('userId', '==', userId)
+    );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => doc.data() as Estimate);
+    const estimates = snapshot.docs.map(doc => doc.data() as Estimate);
+    return estimates.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
   } catch (error) {
     console.error('Error fetching estimates from cloud:', error);
     return [];
@@ -75,14 +87,19 @@ export async function fetchEstimatesFromCloud(): Promise<Estimate[]> {
  * Real-time listener for estimate changes across all connected devices.
  */
 export function subscribeToEstimates(
+  userId: string,
   onUpdate: (estimates: Estimate[]) => void,
   onError?: (error: Error) => void
 ) {
-  const q = query(collection(db, ESTIMATES_COLLECTION), orderBy('updatedAt', 'desc'));
+  const q = query(
+    collection(db, ESTIMATES_COLLECTION),
+    where('userId', '==', userId)
+  );
   return onSnapshot(
     q,
     (snapshot) => {
       const estimates = snapshot.docs.map(doc => doc.data() as Estimate);
+      estimates.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
       onUpdate(estimates);
     },
     (err) => {
