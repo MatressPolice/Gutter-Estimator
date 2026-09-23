@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Plus, Trash2, Copy, MoveUp, MoveDown, AlertCircle } from 'lucide-react';
 import { PartItem } from '../types';
 import { calculatePart, formatCurrency } from '../utils/calculations';
@@ -29,6 +30,13 @@ export default function PartsTable({
   onDuplicatePart,
   onMovePart,
 }: PartsTableProps) {
+  const calculatedParts = useMemo(() => {
+    return parts.map(part => ({
+      part,
+      calcs: calculatePart(part, { hourlyRate, overheadPercent, profitPercent })
+    }));
+  }, [parts, hourlyRate, overheadPercent, profitPercent]);
+
   return (
     <div className="bg-white rounded-xl border border-[#A5ACAF]/40 shadow-xs overflow-hidden">
       {/* Table Title and Actions */}
@@ -67,7 +75,7 @@ export default function PartsTable({
 
           {/* Table Body */}
           <tbody className="divide-y divide-slate-200">
-            {parts.length === 0 ? (
+            {calculatedParts.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-12 text-center text-sm text-slate-400 bg-slate-50/30">
                   <div className="flex flex-col items-center justify-center gap-3">
@@ -83,8 +91,7 @@ export default function PartsTable({
                 </td>
               </tr>
             ) : (
-              parts.map((part, index) => {
-                const calcs = calculatePart(part, { hourlyRate, overheadPercent, profitPercent });
+              calculatedParts.map(({ part, calcs }, index) => {
                 const isSelected = activePartId === part.id;
 
                 return (
