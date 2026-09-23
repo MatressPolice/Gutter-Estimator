@@ -1,6 +1,7 @@
 import { Plus, Trash2, Copy, MoveUp, MoveDown, AlertCircle } from 'lucide-react';
 import { GutterShellItem } from '../types';
 import { calculateGutterShell, formatCurrency } from '../utils/calculations';
+import DivZeroWarning from './DivZeroWarning';
 
 interface GutterShellTableProps {
   shells: GutterShellItem[];
@@ -257,10 +258,7 @@ export default function GutterShellTable({
                           ) : shell.orderLF > 0 ? (
                             <span className="font-mono font-bold text-[#002244]">{formatCurrency(calcs.totalCostLF)}</span>
                           ) : (
-                            <span className="flex items-center gap-1 font-medium text-rose-400 text-[10px]">
-                              <AlertCircle className="w-3 h-3" />
-                              <span>#DIV/0!</span>
-                            </span>
+                            <DivZeroWarning className="text-rose-400" />
                           )}
                         </div>
                       </div>
@@ -311,10 +309,7 @@ export default function GutterShellTable({
                               {formatCurrency(calcs.customerLFS)}
                             </span>
                           ) : (
-                            <span className="flex items-center justify-end gap-1 font-medium text-rose-500 text-[10px]">
-                              <AlertCircle className="w-3 h-3" />
-                              <span>#DIV/0!</span>
-                            </span>
+                            <DivZeroWarning />
                           )}
                         </div>
                       </div>

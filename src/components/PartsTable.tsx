@@ -1,6 +1,7 @@
 import { Plus, Trash2, Copy, MoveUp, MoveDown, AlertCircle } from 'lucide-react';
 import { PartItem } from '../types';
 import { calculatePart, formatCurrency } from '../utils/calculations';
+import DivZeroWarning from './DivZeroWarning';
 
 interface PartsTableProps {
   parts: PartItem[];
@@ -233,10 +234,7 @@ export default function PartsTable({
                               {formatCurrency(calcs.pricePerEa)}
                             </span>
                           ) : (
-                            <span className="flex items-center justify-end gap-1 font-medium text-rose-500 text-[10px]">
-                              <AlertCircle className="w-3 h-3" />
-                              <span>#DIV/0!</span>
-                            </span>
+                            <DivZeroWarning />
                           )}
                         </div>
                       </div>
