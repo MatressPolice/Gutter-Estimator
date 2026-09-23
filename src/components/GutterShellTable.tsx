@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Plus, Trash2, Copy, MoveUp, MoveDown, AlertCircle } from 'lucide-react';
 import { GutterShellItem } from '../types';
 import { calculateGutterShell, formatCurrency } from '../utils/calculations';
@@ -23,6 +24,10 @@ export default function GutterShellTable({
   onDuplicateShell,
   onMoveShell,
 }: GutterShellTableProps) {
+  const shellCalculations = useMemo(() => {
+    return shells.map(shell => calculateGutterShell(shell));
+  }, [shells]);
+
   return (
     <div className="bg-white rounded-xl border border-[#A5ACAF]/40 shadow-xs overflow-hidden">
       {/* Table Title and Actions */}
@@ -78,7 +83,7 @@ export default function GutterShellTable({
               </tr>
             ) : (
               shells.map((shell, index) => {
-                const calcs = calculateGutterShell(shell);
+                const calcs = shellCalculations[index];
                 const isSelected = activeShellId === shell.id;
 
                 return (
