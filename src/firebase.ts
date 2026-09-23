@@ -1,4 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import {
   getFirestore,
   collection,
@@ -8,7 +9,7 @@ import {
   getDocs,
   onSnapshot,
   query,
-  orderBy,
+  where,
   enableIndexedDbPersistence
 } from 'firebase/firestore';
 import { Estimate } from './types';
@@ -25,6 +26,12 @@ const firebaseConfig = {
 // Initialize Firebase App singleton
 export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const db = getFirestore(app);
+export const auth = getAuth(app);
+
+// Sign in anonymously
+signInAnonymously(auth).catch((error) => {
+  console.error('Error signing in anonymously:', error);
+});
 
 const ESTIMATES_COLLECTION = 'estimates';
 
@@ -33,9 +40,13 @@ const ESTIMATES_COLLECTION = 'estimates';
  */
 export async function saveEstimateToCloud(estimate: Estimate): Promise<void> {
   try {
+    const user = auth.currentUser;
+    if (!user) throw new Error('User not authenticated');
+
     const docRef = doc(db, ESTIMATES_COLLECTION, estimate.id);
     await setDoc(docRef, {
       ...estimate,
+      userId: user.uid,
       updatedAt: new Date().toISOString(),
     }, { merge: true });
   } catch (error) {
@@ -62,9 +73,18 @@ export async function deleteEstimateFromCloud(id: string): Promise<void> {
  */
 export async function fetchEstimatesFromCloud(): Promise<Estimate[]> {
   try {
-    const q = query(collection(db, ESTIMATES_COLLECTION), orderBy('updatedAt', 'desc'));
+    const user = auth.currentUser;
+    if (!user) return [];
+
+    const q = query(
+      collection(db, ESTIMATES_COLLECTION),
+      where('userId', '==', user.uid)
+    );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => doc.data() as Estimate);
+    const estimates = snapshot.docs.map(doc => doc.data() as Estimate);
+
+    // Sort client-side to bypass composite index requirements
+    return estimates.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
   } catch (error) {
     console.error('Error fetching estimates from cloud:', error);
     return [];
@@ -78,16 +98,39 @@ export function subscribeToEstimates(
   onUpdate: (estimates: Estimate[]) => void,
   onError?: (error: Error) => void
 ) {
-  const q = query(collection(db, ESTIMATES_COLLECTION), orderBy('updatedAt', 'desc'));
-  return onSnapshot(
-    q,
-    (snapshot) => {
-      const estimates = snapshot.docs.map(doc => doc.data() as Estimate);
-      onUpdate(estimates);
-    },
-    (err) => {
-      console.warn('Firestore subscription warning:', err);
-      if (onError) onError(err);
+  let unsubscribeSnapshot: () => void = () => {};
+
+  const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+    // Clean up previous snapshot listener if it exists
+    unsubscribeSnapshot();
+
+    if (user) {
+      const q = query(
+        collection(db, ESTIMATES_COLLECTION),
+        where('userId', '==', user.uid)
+      );
+
+      unsubscribeSnapshot = onSnapshot(
+        q,
+        (snapshot) => {
+          const estimates = snapshot.docs.map(doc => doc.data() as Estimate);
+          // Sort client-side to bypass composite index requirements
+          estimates.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+          onUpdate(estimates);
+        },
+        (err) => {
+          console.warn('Firestore subscription warning:', err);
+          if (onError) onError(err);
+        }
+      );
+    } else {
+      // Not logged in (or checking), send empty updates for now
+      onUpdate([]);
     }
-  );
+  });
+
+  return () => {
+    unsubscribeAuth();
+    unsubscribeSnapshot();
+  };
 }
