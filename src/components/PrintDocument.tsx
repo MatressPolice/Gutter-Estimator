@@ -59,7 +59,26 @@ export default function PrintDocument({
       {/* Standard 8.5" x 11" Letter Document Container */}
       <div className="bg-white p-6 sm:p-8 border border-slate-300 rounded-xl shadow-lg print:shadow-none print:border-none print:p-0 print:m-0 print:max-w-full mx-auto print-container max-w-[7.6in] w-full font-sans text-[#002244] leading-normal box-border">
         
-        {/* 1. Header / Letterhead with Seattle Seahawks Light Brand */}
+        <PrintHeader estimate={estimate} dateFormatted={dateFormatted} />
+
+        {hasShells && <PrintShellsTable estimate={estimate} compTotals={compTotals} activeMode={activeMode} />}
+
+        {hasParts && <PrintPartsTable estimate={estimate} activeMode={activeMode} />}
+
+        <PrintTotals compTotals={compTotals} hasParts={hasParts} hasShells={hasShells} />
+
+        <PrintFooter />
+
+      </div>
+    </div>
+  );
+}
+
+
+function PrintHeader({ estimate, dateFormatted }: { estimate: Estimate; dateFormatted: string }) {
+  return (
+    <>
+{/* 1. Header / Letterhead with Seattle Seahawks Light Brand */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 border-b-2 border-[#002244] pb-5 mb-6">
           <div className="flex items-center gap-3.5">
             <GutterLogo size={50} />
@@ -107,10 +126,15 @@ export default function PrintDocument({
             </p>
           </div>
         </div>
+    </>
+  );
+}
 
-        {/* 3. GUTTER SHELL TABLE (When shells exist in estimate) */}
-        {hasShells && (
-          <div className="mb-6 print-break-inside-avoid">
+function PrintShellsTable({ estimate, compTotals, activeMode }: { estimate: Estimate; compTotals: ReturnType<typeof calculateComprehensiveTotals>; activeMode: 'detailed' | 'client' }) {
+  return (
+    <>
+{/* 3. GUTTER SHELL TABLE (When shells exist in estimate) */}
+        <div className="mb-6 print-break-inside-avoid">
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-bold text-[#002244] uppercase tracking-wider text-[11px] font-display flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#69BE28]" />
@@ -216,11 +240,15 @@ export default function PrintDocument({
               </table>
             )}
           </div>
-        )}
+    </>
+  );
+}
 
-        {/* 4. CUSTOM PARTS TABLE (When parts exist in estimate) */}
-        {hasParts && (
-          <div className="mb-6 print-break-inside-avoid">
+function PrintPartsTable({ estimate, activeMode }: { estimate: Estimate; activeMode: 'detailed' | 'client' }) {
+  return (
+    <>
+{/* 4. CUSTOM PARTS TABLE (When parts exist in estimate) */}
+        <div className="mb-6 print-break-inside-avoid">
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-bold text-[#002244] uppercase tracking-wider text-[11px] font-display flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#69BE28]" />
@@ -318,9 +346,14 @@ export default function PrintDocument({
               </table>
             )}
           </div>
-        )}
+    </>
+  );
+}
 
-        {/* 5. Aggregate Grand Totals (Summary Table) */}
+function PrintTotals({ compTotals, hasParts, hasShells }: { compTotals: ReturnType<typeof calculateComprehensiveTotals>; hasParts: boolean | undefined | number; hasShells: boolean | undefined | number }) {
+  return (
+    <>
+{/* 5. Aggregate Grand Totals (Summary Table) */}
         <div className="flex justify-end mb-8 print-break-inside-avoid">
           <div className="w-full sm:w-76 space-y-1.5 text-xs border-t-2 border-[#002244] pt-3">
             {hasParts && (
@@ -358,8 +391,14 @@ export default function PrintDocument({
             </div>
           </div>
         </div>
+    </>
+  );
+}
 
-        {/* 6. Sign-off Footer block */}
+function PrintFooter() {
+  return (
+    <>
+{/* 6. Sign-off Footer block */}
         <div className="mt-8 border-t border-[#A5ACAF]/40 pt-6 print-break-inside-avoid text-xs">
           <div className="grid grid-cols-2 gap-8">
             <div>
@@ -376,8 +415,6 @@ export default function PrintDocument({
             </div>
           </div>
         </div>
-
-      </div>
-    </div>
+    </>
   );
 }
