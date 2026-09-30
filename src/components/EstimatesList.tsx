@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Database, Search, Calendar, Trash2, X, PlusCircle, Copy, Edit3, Printer, CheckCircle2 } from 'lucide-react';
 import { Estimate } from '../types';
 import { formatCurrency } from '../utils/calculations';
@@ -24,14 +24,16 @@ export default function EstimatesList({
 }: EstimatesListProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filtered = estimates.filter((e) => {
-    const query = searchQuery.toLowerCase();
-    return (
+  const filtered = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return estimates;
+
+    return estimates.filter((e) => (
       e.name.toLowerCase().includes(query) ||
       e.clientName.toLowerCase().includes(query) ||
       e.quoteNumber.toLowerCase().includes(query)
-    );
-  });
+    ));
+  }, [estimates, searchQuery]);
 
   return (
     <div className="flex flex-col h-full bg-[#00162B] text-white w-96 max-w-full shadow-2xl relative border-l border-[#A5ACAF]/20 z-50">
