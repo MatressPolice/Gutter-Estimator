@@ -111,7 +111,7 @@ export default function GutterShellTable({
                         <select
                           value={shell.gauge}
                           onClick={(e) => e.stopPropagation()}
-                          onChange={(e) => onUpdateShell(shell.id, 'gauge', e.target.value as any)}
+                          onChange={(e) => onUpdateShell(shell.id, 'gauge', e.target.value as GutterShellItem['gauge'])}
                           className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#002244] focus:ring-1 focus:ring-[#002244] rounded px-2 py-1.5 font-medium outline-hidden transition-all text-[#002244] text-xs shadow-2xs"
                         >
                           <option value="" disabled>Select Gauge...</option>
