@@ -32,29 +32,19 @@ const ESTIMATES_COLLECTION = 'estimates';
  * Saves or updates an estimate in Cloud Firestore.
  */
 export async function saveEstimateToCloud(estimate: Estimate): Promise<void> {
-  try {
-    const docRef = doc(db, ESTIMATES_COLLECTION, estimate.id);
-    await setDoc(docRef, {
-      ...estimate,
-      updatedAt: new Date().toISOString(),
-    }, { merge: true });
-  } catch (error) {
-    console.error('Error saving estimate to cloud:', error);
-    throw error;
-  }
+  const docRef = doc(db, ESTIMATES_COLLECTION, estimate.id);
+  await setDoc(docRef, {
+    ...estimate,
+    updatedAt: new Date().toISOString(),
+  }, { merge: true });
 }
 
 /**
  * Deletes an estimate from Cloud Firestore.
  */
 export async function deleteEstimateFromCloud(id: string): Promise<void> {
-  try {
-    const docRef = doc(db, ESTIMATES_COLLECTION, id);
-    await deleteDoc(docRef);
-  } catch (error) {
-    console.error('Error deleting estimate from cloud:', error);
-    throw error;
-  }
+  const docRef = doc(db, ESTIMATES_COLLECTION, id);
+  await deleteDoc(docRef);
 }
 
 /**
@@ -66,7 +56,6 @@ export async function fetchEstimatesFromCloud(): Promise<Estimate[]> {
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => doc.data() as Estimate);
   } catch (error) {
-    console.error('Error fetching estimates from cloud:', error);
     return [];
   }
 }
