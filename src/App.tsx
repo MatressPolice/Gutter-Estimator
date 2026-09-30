@@ -147,7 +147,7 @@ export default function App() {
   // ----------------------------------------------------
   // WORKSPACE ACTION HANDLERS
   // ----------------------------------------------------
-  const handleUpdateMeta = (key: keyof Estimate, value: any) => {
+  const handleUpdateMeta = <K extends keyof Estimate>(key: K, value: Estimate[K]) => {
     setCurrentEstimate((prev) => ({
       ...prev,
       [key]: value,
