@@ -36,6 +36,7 @@ export interface Estimate {
   shells: GutterShellItem[];
   createdAt: string;
   updatedAt: string;
+  userId?: string;
 }
 
 export interface PartCalculations {
