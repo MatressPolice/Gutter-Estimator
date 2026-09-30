@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Estimate, EstimateTotals } from '../types';
 import { calculatePart, calculateGutterShell, calculateComprehensiveTotals, formatCurrency } from '../utils/calculations';
 import GutterLogo from './GutterLogo';
@@ -14,7 +14,7 @@ export default function PrintDocument({
   viewMode = 'detailed' 
 }: PrintDocumentProps) {
   const [activeMode, setActiveMode] = useState<'detailed' | 'client'>(viewMode);
-  const compTotals = calculateComprehensiveTotals(estimate);
+  const compTotals = useMemo(() => calculateComprehensiveTotals(estimate), [estimate]);
 
   const dateFormatted = estimate.date
     ? new Date(estimate.date).toLocaleDateString('en-US', {
