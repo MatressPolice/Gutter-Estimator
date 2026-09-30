@@ -6,7 +6,7 @@ interface GutterShellTableProps {
   shells: GutterShellItem[];
   activeShellId: string | null;
   onSelectShell: (id: string) => void;
-  onUpdateShell: (id: string, key: keyof GutterShellItem, value: any) => void;
+  onUpdateShell: <K extends keyof GutterShellItem>(id: string, key: K, value: GutterShellItem[K]) => void;
   onAddShell: () => void;
   onDeleteShell: (id: string) => void;
   onDuplicateShell: (id: string) => void;

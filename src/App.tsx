@@ -266,7 +266,7 @@ export default function App() {
     });
   };
 
-  const handleUpdateShell = (shellId: string, key: keyof GutterShellItem, value: any) => {
+  const handleUpdateShell = <K extends keyof GutterShellItem>(shellId: string, key: K, value: GutterShellItem[K]) => {
     setCurrentEstimate((prev) => {
       const updatedShells = (prev.shells || []).map((shell) => {
         if (shell.id === shellId) {
