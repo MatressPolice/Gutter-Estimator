@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Database, Search, Calendar, Trash2, X, PlusCircle, Copy, Edit3, Printer, CheckCircle2 } from 'lucide-react';
 import { Estimate } from '../types';
 import { formatCurrency } from '../utils/calculations';
@@ -32,6 +32,20 @@ export default function EstimatesList({
       e.quoteNumber.toLowerCase().includes(query)
     );
   });
+
+  const totals = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const item of estimates) {
+      const sum = (item.parts || []).reduce((acc, part) => {
+        const sub = (part.hours * item.hourlyRate) + (part.sheets * part.pricePerSheet);
+        const oh = sub * (item.overheadPercent / 100);
+        const pr = sub * (item.profitPercent / 100);
+        return acc + sub + oh + pr;
+      }, 0);
+      map.set(item.id, sum);
+    }
+    return map;
+  }, [estimates]);
 
   return (
     <div className="flex flex-col h-full bg-[#00162B] text-white w-96 max-w-full shadow-2xl relative border-l border-[#A5ACAF]/20 z-50">
@@ -83,12 +97,7 @@ export default function EstimatesList({
         ) : (
           filtered.map((item) => {
             const isCurrent = item.id === currentEstimateId;
-            const totalSum = (item.parts || []).reduce((sum, part) => {
-              const sub = (part.hours * item.hourlyRate) + (part.sheets * part.pricePerSheet);
-              const oh = sub * (item.overheadPercent / 100);
-              const pr = sub * (item.profitPercent / 100);
-              return sum + sub + oh + pr;
-            }, 0);
+            const totalSum = totals.get(item.id) || 0;
 
             return (
               <div
