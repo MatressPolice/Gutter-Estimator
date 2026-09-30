@@ -166,7 +166,7 @@ export default function App() {
     }));
   };
 
-  const handleUpdatePart = (partId: string, key: keyof PartItem, value: any) => {
+  const handleUpdatePart = <K extends keyof PartItem>(partId: string, key: K, value: PartItem[K]) => {
     setCurrentEstimate((prev) => {
       const updatedParts = prev.parts.map((part) => {
         if (part.id === partId) {
