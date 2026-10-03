@@ -152,6 +152,71 @@ describe('calculateEstimateTotals', () => {
     });
   });
 
+  it('should correctly calculate totals for a single part', () => {
+    const parts: PartItem[] = [
+      {
+        id: '1',
+        name: 'Part 1',
+        uom: 'EA',
+        hours: 2,
+        sheets: 3,
+        pricePerSheet: 50,
+        quantity: 1,
+      },
+    ];
+
+    const result = calculateEstimateTotals(parts, defaultRates);
+
+    expect(result).toEqual({
+      totalHours: 2,
+      totalSheets: 3,
+      totalHoursCost: 200,
+      totalMaterialCosts: 150,
+      totalSubTotal: 350,
+      totalOverhead: 70,
+      totalProfit: 35,
+      totalGrandTotal: 455,
+      averagePricePerEa: 455,
+    });
+  });
+
+  it('should correctly calculate totals for multiple parts', () => {
+    const parts: PartItem[] = [
+      {
+        id: '1',
+        name: 'Part 1',
+        uom: 'EA',
+        hours: 2,
+        sheets: 3,
+        pricePerSheet: 50,
+        quantity: 1,
+      },
+      {
+        id: '2',
+        name: 'Part 2',
+        uom: 'EA',
+        hours: 1,
+        sheets: 1,
+        pricePerSheet: 100,
+        quantity: 2,
+      },
+    ];
+
+    const result = calculateEstimateTotals(parts, defaultRates);
+
+    expect(result).toEqual({
+      totalHours: 3,
+      totalSheets: 4,
+      totalHoursCost: 300,
+      totalMaterialCosts: 250,
+      totalSubTotal: 550,
+      totalOverhead: 110,
+      totalProfit: 55,
+      totalGrandTotal: 715,
+      averagePricePerEa: 715 / 3,
+    });
+  });
+
   it('should handle parts with zero quantities avoiding division by zero', () => {
     const partsWithZeroQuantities: PartItem[] = [
       {
