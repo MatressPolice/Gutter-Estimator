@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Plus, Trash2, Copy, MoveUp, MoveDown, AlertCircle } from 'lucide-react';
 import { PartItem } from '../../types';
 import { calculatePart, formatCurrency } from '../../utils/calculations';
@@ -20,7 +20,7 @@ interface PartRowProps {
   onMovePart: (index: number, direction: 'up' | 'down') => void;
 }
 
-export default function PartRow({
+function PartRow({
   part,
   index,
   totalParts,
@@ -231,3 +231,5 @@ export default function PartRow({
     </tr>
   );
 }
+
+export default React.memo(PartRow);
