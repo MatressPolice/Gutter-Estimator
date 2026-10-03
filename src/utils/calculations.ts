@@ -6,41 +6,28 @@ import { PartItem, PartCalculations, EstimateTotals, GutterShellItem, GutterShel
 export function calculateGutterShell(shell: GutterShellItem): GutterShellCalculations {
   const labor = shell.customerLF < 300 ? 7 : 6;
 
-  if (shell.isCustomerCoil) {
-    const subTotal = 0;
-    const totalCost = 0;
-    const totalCostLF = 0;
-    const markup = labor * 0.43;
-    const priceChargedLF = labor + markup;
-    const total = priceChargedLF * shell.orderLF;
-    const customerLFS = shell.customerLF > 0 ? total / shell.customerLF : 0;
+  let subTotal = 0;
+  let totalCost = 0;
+  let totalCostLF = 0;
+  let markup = 0;
 
-    return {
-      subTotal,
-      totalCost,
-      totalCostLF,
-      markup,
-      labor,
-      priceChargedLF,
-      total,
-      customerLFS,
-    };
+  if (shell.isCustomerCoil) {
+    markup = labor * 0.43;
+  } else {
+    // If pricePerSheet > 0, we override costPerLF
+    const costPerLF = shell.pricePerSheet > 0 ? shell.pricePerSheet / 20 : shell.costPerLF;
+
+    subTotal = costPerLF * shell.orderLF;
+    totalCost = subTotal + shell.slitCharge + shell.freight;
+
+    totalCostLF = shell.orderLF > 0 ? totalCost / shell.orderLF : 0;
+    markup = totalCostLF * 0.43;
   }
 
-  // If pricePerSheet > 0, we override costPerLF
-  const costPerLF = shell.pricePerSheet > 0 ? shell.pricePerSheet / 20 : shell.costPerLF;
-  
-  const subTotal = costPerLF * shell.orderLF;
-  const totalCost = subTotal + shell.slitCharge + shell.freight;
-  
-  const totalCostLF = shell.orderLF > 0 ? totalCost / shell.orderLF : 0;
-  const markup = totalCostLF * 0.43;
-  
   const priceChargedLF = totalCostLF + markup + labor;
   const total = priceChargedLF * shell.orderLF;
-  
   const customerLFS = shell.customerLF > 0 ? total / shell.customerLF : 0;
-  
+
   return {
     subTotal,
     totalCost,
