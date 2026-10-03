@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+import { vi, describe, beforeEach, test, expect } from 'vitest';
 import App from './App';
 import * as firebaseClient from './firebase';
 
