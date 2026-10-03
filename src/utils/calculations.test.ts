@@ -154,6 +154,31 @@ describe('calculatePart', () => {
     expect(result.grandTotal).toBeCloseTo(82.56);
     expect(result.pricePerEa).toBeCloseTo(27.52);
   });
+
+  it('should handle fractional percentages correctly', () => {
+    const part: PartItem = {
+      id: '6',
+      name: 'Test Part Fractional Rates',
+      hours: 1,
+      sheets: 1,
+      pricePerSheet: 10,
+      quantity: 5,
+    };
+
+    const fractionalRates = {
+      hourlyRate: 50,
+      overheadPercent: 25.5,
+      profitPercent: 12.5,
+    };
+
+    const result = calculatePart(part, fractionalRates);
+
+    expect(result.subTotal).toBe(60);
+    expect(result.overhead).toBeCloseTo(15.3);
+    expect(result.profit).toBeCloseTo(7.5);
+    expect(result.grandTotal).toBeCloseTo(82.8);
+    expect(result.pricePerEa).toBeCloseTo(16.56);
+  });
 });
 
 describe('calculateEstimateTotals', () => {
