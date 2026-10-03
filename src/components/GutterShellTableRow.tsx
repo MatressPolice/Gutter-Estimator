@@ -11,7 +11,7 @@ interface GutterShellTableRowProps {
   isSelected: boolean;
   totalShells: number;
   onSelectShell: (id: string) => void;
-  onUpdateShell: (id: string, key: keyof GutterShellItem, value: any) => void;
+  onUpdateShell: <K extends keyof GutterShellItem>(id: string, key: K, value: GutterShellItem[K]) => void;
   onDeleteShell: (id: string) => void;
   onDuplicateShell: (id: string) => void;
   onMoveShell: (index: number, direction: 'up' | 'down') => void;
