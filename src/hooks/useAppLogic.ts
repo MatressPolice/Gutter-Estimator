@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Estimate, PartItem, EstimateTotals, GutterShellItem } from '../types';
 import { calculateEstimateTotals } from '../utils/calculations';
+import { isEstimateEqual } from '../utils/equality';
 import { saveEstimateToCloud, deleteEstimateFromCloud, subscribeToEstimates } from '../firebase';
 
 // ----------------------------------------------------
@@ -117,7 +118,7 @@ export function useAppLogic() {
       setHasUnsavedChanges(Boolean(isFilled));
       return;
     }
-    const isDifferent = JSON.stringify(savedVer) !== JSON.stringify(currentEstimate);
+    const isDifferent = !isEstimateEqual(savedVer, currentEstimate);
     setHasUnsavedChanges(isDifferent);
   }, [currentEstimate, estimates]);
 
