@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Trash2, Copy, MoveUp, MoveDown, AlertCircle } from 'lucide-react';
 import { GutterShellItem } from '../types';
 import { calculateGutterShell, formatCurrency } from '../utils/calculations';
@@ -17,7 +17,7 @@ interface GutterShellTableRowProps {
   onMoveShell: (index: number, direction: 'up' | 'down') => void;
 }
 
-export default function GutterShellTableRow({
+function GutterShellTableRow({
   shell,
   index,
   isSelected,
@@ -302,3 +302,6 @@ export default function GutterShellTableRow({
     </tr>
   );
 }
+
+export default React.memo(GutterShellTableRow);
+
