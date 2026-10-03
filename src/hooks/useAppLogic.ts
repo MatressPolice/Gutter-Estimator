@@ -114,7 +114,10 @@ export function useAppLogic() {
     const savedVer = estimates.find((e) => e.id === currentEstimate.id);
     if (!savedVer) {
       // If it's a blank fresh quote, only flag dirty if fields are filled
-      const isFilled = currentEstimate.clientName || currentEstimate.quoteNumber || currentEstimate.parts.some(p => p.name || p.hours > 0 || p.pricePerSheet > 0);
+      const isFilled =
+        currentEstimate.clientName ||
+        currentEstimate.quoteNumber ||
+        currentEstimate.parts.some((p) => p.name || p.hours > 0 || p.pricePerSheet > 0);
       setHasUnsavedChanges(Boolean(isFilled));
       return;
     }
