@@ -1,4 +1,5 @@
-import { DollarSign, Percent, Clock, Briefcase, HelpCircle } from 'lucide-react';
+import { DollarSign, Percent, Clock, Briefcase } from 'lucide-react';
+import Tooltip from './Tooltip';
 
 interface RatesConfigProps {
   hourlyRate: number;
@@ -31,12 +32,7 @@ export default function RatesConfig({
                 <Clock className="w-3.5 h-3.5 text-[#002244]" />
                 Hourly Labor Rate
               </span>
-              <div className="group relative">
-                <HelpCircle className="w-4 h-4 text-slate-400 hover:text-slate-600 cursor-pointer" />
-                <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block w-64 bg-[#00162B] text-white text-xs p-2.5 rounded-lg shadow-lg z-10 font-sans font-normal leading-relaxed border border-[#A5ACAF]/30">
-                  The standard billable rate per hour of shop work. Multiplied by `#OfHours` to find the labor cost.
-                </div>
-              </div>
+              <Tooltip content="The standard billable rate per hour of shop work. Multiplied by `#OfHours` to find the labor cost." />
             </div>
             <p className="text-xs text-slate-500 mb-3">
               Applies globally to all hours calculated.
@@ -68,12 +64,7 @@ export default function RatesConfig({
                 <Percent className="w-3.5 h-3.5 text-slate-600" />
                 Overhead Percentage
               </span>
-              <div className="group relative">
-                <HelpCircle className="w-4 h-4 text-slate-400 hover:text-slate-600 cursor-pointer" />
-                <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block w-64 bg-[#00162B] text-white text-xs p-2.5 rounded-lg shadow-lg z-10 font-sans font-normal leading-relaxed border border-[#A5ACAF]/30">
-                  Additional percentage added to the subtotal (labor + materials) to cover business operations, rent, wear-and-tear, utilities, and consumables.
-                </div>
-              </div>
+              <Tooltip content="Additional percentage added to the subtotal (labor + materials) to cover business operations, rent, wear-and-tear, utilities, and consumables." />
             </div>
             <p className="text-xs text-slate-500 mb-3">
               Standard: 34% of Subtotal.
@@ -103,12 +94,11 @@ export default function RatesConfig({
                 <Percent className="w-3.5 h-3.5 text-[#69BE28]" />
                 Target Profit Margin
               </span>
-              <div className="group relative">
-                <HelpCircle className="w-4 h-4 text-[#69BE28] hover:text-[#5aa721] cursor-pointer" />
-                <div className="absolute right-0 bottom-full mb-2 hidden group-hover:block w-64 bg-[#00162B] text-white text-xs p-2.5 rounded-lg shadow-lg z-10 font-sans font-normal leading-relaxed border border-[#69BE28]/50">
-                  Target net profit percentage added to the subtotal. Defaults to 10%.
-                </div>
-              </div>
+              <Tooltip
+                content="Target net profit percentage added to the subtotal. Defaults to 10%."
+                iconClassName="w-4 h-4 text-[#69BE28] hover:text-[#5aa721] cursor-pointer"
+                popupClassName="absolute right-0 bottom-full mb-2 hidden group-hover:block w-64 bg-[#00162B] text-white text-xs p-2.5 rounded-lg shadow-lg z-10 font-sans font-normal leading-relaxed border border-[#69BE28]/50"
+              />
             </div>
             <p className="text-xs text-slate-600 mb-3">
               Standard: 10% of Subtotal.
