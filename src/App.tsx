@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Printer, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { Estimate, PartItem, EstimateTotals, GutterShellItem } from './types';
 import { calculateEstimateTotals } from './utils/calculations';
+import { isEstimateEqual } from './utils/equality';
 import { APP_VERSION, BUILD_TIMESTAMP } from './version';
 import { saveEstimateToCloud, deleteEstimateFromCloud, subscribeToEstimates } from './firebase';
 import Header from './components/Header';
@@ -126,7 +127,7 @@ export default function App() {
       setHasUnsavedChanges(Boolean(isFilled));
       return;
     }
-    const isDifferent = JSON.stringify(savedVer) !== JSON.stringify(currentEstimate);
+    const isDifferent = !isEstimateEqual(savedVer, currentEstimate);
     setHasUnsavedChanges(isDifferent);
   }, [currentEstimate, estimates]);
 

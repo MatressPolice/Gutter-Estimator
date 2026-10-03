@@ -24,8 +24,8 @@ export default function EstimatesList({
 }: EstimatesListProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
+  const query = searchQuery.toLowerCase();
   const filtered = estimates.filter((e) => {
-    const query = searchQuery.toLowerCase();
     return (
       e.name.toLowerCase().includes(query) ||
       e.clientName.toLowerCase().includes(query) ||
