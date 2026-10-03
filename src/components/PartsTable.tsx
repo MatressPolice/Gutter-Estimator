@@ -9,7 +9,7 @@ interface PartsTableProps {
   profitPercent: number;
   activePartId: string | null;
   onSelectPart: (id: string) => void;
-  onUpdatePart: (id: string, key: keyof PartItem, value: any) => void;
+  onUpdatePart: <K extends keyof PartItem>(id: string, key: K, value: PartItem[K]) => void;
   onAddPart: () => void;
   onDeletePart: (id: string) => void;
   onDuplicatePart: (id: string) => void;

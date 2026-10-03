@@ -14,7 +14,7 @@ interface PartRowProps {
   profitPercent: number;
   isSelected: boolean;
   onSelectPart: (id: string) => void;
-  onUpdatePart: (id: string, key: keyof PartItem, value: any) => void;
+  onUpdatePart: <K extends keyof PartItem>(id: string, key: K, value: PartItem[K]) => void;
   onDeletePart: (id: string) => void;
   onDuplicatePart: (id: string) => void;
   onMovePart: (index: number, direction: 'up' | 'down') => void;
