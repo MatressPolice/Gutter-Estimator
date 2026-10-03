@@ -3,6 +3,7 @@ import { PartItem } from '../../types';
 import { calculatePart, formatCurrency } from '../../utils/calculations';
 
 interface PartRowProps {
+  key?: string;
   part: PartItem;
   index: number;
   totalParts: number;
