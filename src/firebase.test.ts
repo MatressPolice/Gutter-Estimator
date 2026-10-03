@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { fetchEstimatesFromCloud, subscribeToEstimates, saveEstimateToCloud } from './firebase';
-import { collection, query, orderBy, onSnapshot, getDocs, doc, setDoc } from 'firebase/firestore';
+import { fetchEstimatesFromCloud, subscribeToEstimates, saveEstimateToCloud, deleteEstimateFromCloud, db } from './firebase';
+import { collection, query, orderBy, onSnapshot, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { Estimate } from './types';
 
 vi.mock('firebase/app', () => ({
@@ -160,6 +160,38 @@ describe('firebase.ts', () => {
       expect(consoleWarnSpy).toHaveBeenCalledWith('Firestore subscription warning:', mockError);
 
       consoleWarnSpy.mockRestore();
+    });
+  });
+
+  describe('deleteEstimateFromCloud', () => {
+    const MOCK_ID = 'test-estimate-123';
+
+    it('should delete the estimate successfully', async () => {
+      vi.mocked(deleteDoc).mockResolvedValueOnce(undefined);
+      const mockDocRef = {} as any;
+      vi.mocked(doc).mockReturnValueOnce(mockDocRef);
+
+      await deleteEstimateFromCloud(MOCK_ID);
+
+      expect(doc).toHaveBeenCalledWith(db, 'estimates', MOCK_ID);
+      expect(deleteDoc).toHaveBeenCalledWith(mockDocRef);
+    });
+
+    it('should throw an error and log it if deletion fails', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const mockError = new Error('Failed to delete document');
+      vi.mocked(deleteDoc).mockRejectedValueOnce(mockError);
+      const mockDocRef = {} as any;
+      vi.mocked(doc).mockReturnValueOnce(mockDocRef);
+
+      await expect(deleteEstimateFromCloud(MOCK_ID)).rejects.toThrow('Failed to delete document');
+
+      expect(doc).toHaveBeenCalledWith(db, 'estimates', MOCK_ID);
+      expect(deleteDoc).toHaveBeenCalledWith(mockDocRef);
+      expect(consoleSpy).toHaveBeenCalledWith('Error deleting estimate from cloud:', mockError);
+
+      consoleSpy.mockRestore();
     });
   });
 });
