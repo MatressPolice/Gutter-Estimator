@@ -10,8 +10,7 @@ import {
   onSnapshot,
   query,
   orderBy,
-  where,
-  enableIndexedDbPersistence
+  where
 } from 'firebase/firestore';
 import { Estimate } from './types';
 
