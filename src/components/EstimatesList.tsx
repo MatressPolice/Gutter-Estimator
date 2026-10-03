@@ -36,14 +36,16 @@ export default function EstimatesList({
     });
   }, [estimates]);
 
-  const query = searchQuery.toLowerCase();
-  const filtered = estimatesWithTotals.filter((e) => {
-    return (
+  const filtered = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return estimatesWithTotals;
+
+    return estimatesWithTotals.filter((e) => (
       e.name.toLowerCase().includes(query) ||
       e.clientName.toLowerCase().includes(query) ||
       e.quoteNumber.toLowerCase().includes(query)
-    );
-  });
+    ));
+  }, [estimatesWithTotals, searchQuery]);
 
   return (
     <div className="flex flex-col h-full bg-[#00162B] text-white w-96 max-w-full shadow-2xl relative border-l border-[#A5ACAF]/20 z-50">
