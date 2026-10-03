@@ -9,6 +9,15 @@ vi.mock('firebase/app', () => ({
   getApp: vi.fn()
 }));
 
+vi.mock('firebase/auth', () => ({
+  getAuth: vi.fn(() => ({ currentUser: { uid: 'test-user-id' } })),
+  signInAnonymously: vi.fn(() => Promise.resolve()),
+  onAuthStateChanged: vi.fn((auth, callback) => {
+    callback({ uid: 'test-user-id' });
+    return vi.fn();
+  }),
+}));
+
 vi.mock('firebase/firestore', () => ({
   getFirestore: vi.fn(),
   collection: vi.fn(),
@@ -19,6 +28,7 @@ vi.mock('firebase/firestore', () => ({
   onSnapshot: vi.fn(),
   query: vi.fn(),
   orderBy: vi.fn(),
+  where: vi.fn(),
   enableIndexedDbPersistence: vi.fn()
 }));
 
