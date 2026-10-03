@@ -1,8 +1,9 @@
+import 'dotenv/config';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, deleteDoc, getDocs, collection } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCvzo5EelYJtwx05L-K0m9_-duZvUuUfuY",
+  apiKey: process.env.VITE_FIREBASE_API_KEY,
   authDomain: "gutter-estimator-pro.firebaseapp.com",
   projectId: "gutter-estimator-pro",
   storageBucket: "gutter-estimator-pro.firebasestorage.app",

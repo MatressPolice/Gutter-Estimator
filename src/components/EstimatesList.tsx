@@ -36,8 +36,8 @@ export default function EstimatesList({
     });
   }, [estimates]);
 
+  const query = searchQuery.toLowerCase();
   const filtered = estimatesWithTotals.filter((e) => {
-    const query = searchQuery.toLowerCase();
     return (
       e.name.toLowerCase().includes(query) ||
       e.clientName.toLowerCase().includes(query) ||
