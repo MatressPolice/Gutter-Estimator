@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Plus, Trash2, Copy, MoveUp, MoveDown, AlertCircle } from 'lucide-react';
 import { PartItem } from '../../types';
 import { calculatePart, formatCurrency } from '../../utils/calculations';
@@ -33,7 +34,10 @@ export default function PartRow({
   onDuplicatePart,
   onMovePart,
 }: PartRowProps) {
-  const calcs = calculatePart(part, { hourlyRate, overheadPercent, profitPercent });
+  const calcs = useMemo(
+    () => calculatePart(part, { hourlyRate, overheadPercent, profitPercent }),
+    [part, hourlyRate, overheadPercent, profitPercent]
+  );
 
   return (
     <tr
