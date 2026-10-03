@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Trash2, Copy, MoveUp, MoveDown, AlertCircle } from 'lucide-react';
 import { GutterShellItem } from '../types';
 import { calculateGutterShell, formatCurrency } from '../utils/calculations';
@@ -27,7 +28,7 @@ export default function GutterShellTableRow({
   onDuplicateShell,
   onMoveShell,
 }: GutterShellTableRowProps) {
-  const calcs = calculateGutterShell(shell);
+  const calcs = useMemo(() => calculateGutterShell(shell), [shell]);
 
   return (
     <tr
