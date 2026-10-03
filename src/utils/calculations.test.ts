@@ -101,6 +101,32 @@ describe('calculatePart', () => {
     expect(result.grandTotal).toBe(40);
     expect(result.pricePerEa).toBe(20);
   });
+
+  it('should handle all zero inputs correctly', () => {
+    const part: PartItem = {
+      id: '4',
+      name: 'Zero Input Part',
+      hours: 0,
+      sheets: 0,
+      pricePerSheet: 0,
+      quantity: 0,
+    };
+    const rates = {
+      hourlyRate: 0,
+      overheadPercent: 0,
+      profitPercent: 0,
+    };
+
+    const result = calculatePart(part, rates);
+
+    expect(result.hoursCost).toBe(0);
+    expect(result.materialCosts).toBe(0);
+    expect(result.subTotal).toBe(0);
+    expect(result.overhead).toBe(0);
+    expect(result.profit).toBe(0);
+    expect(result.grandTotal).toBe(0);
+    expect(result.pricePerEa).toBe(0);
+  });
 });
 
 describe('calculateEstimateTotals', () => {
