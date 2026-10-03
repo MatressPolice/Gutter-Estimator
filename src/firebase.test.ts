@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { fetchEstimatesFromCloud, subscribeToEstimates } from './firebase';
-import { collection, query, orderBy, onSnapshot, getDocs } from 'firebase/firestore';
+import { fetchEstimatesFromCloud, subscribeToEstimates, saveEstimateToCloud } from './firebase';
+import { collection, query, orderBy, onSnapshot, getDocs, doc, setDoc } from 'firebase/firestore';
+import { Estimate } from './types';
 
 vi.mock('firebase/app', () => ({
   initializeApp: vi.fn(),
@@ -24,6 +25,55 @@ vi.mock('firebase/firestore', () => ({
 describe('firebase.ts', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  describe('saveEstimateToCloud', () => {
+    const mockEstimate: Estimate = {
+      id: 'test-id',
+      name: 'Test Estimate',
+      clientName: 'Test Client',
+      quoteNumber: 'Q-100',
+      date: '2026-10-03',
+      hourlyRate: 100,
+      overheadPercent: 20,
+      profitPercent: 10,
+      parts: [],
+      shells: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    it('should successfully save an estimate to the cloud', async () => {
+      const mockDocRef = { id: 'test-id' };
+      vi.mocked(doc).mockReturnValue(mockDocRef as any);
+      vi.mocked(setDoc).mockResolvedValue(undefined);
+
+      await saveEstimateToCloud(mockEstimate);
+
+      expect(doc).toHaveBeenCalled();
+      expect(setDoc).toHaveBeenCalledWith(
+        mockDocRef,
+        expect.objectContaining({
+          ...mockEstimate,
+          updatedAt: expect.any(String),
+        }),
+        { merge: true }
+      );
+    });
+
+    it('should throw an error and log it when save fails', async () => {
+      const mockDocRef = { id: 'test-id' };
+      const mockError = new Error('Failed to save');
+
+      vi.mocked(doc).mockReturnValue(mockDocRef as any);
+      vi.mocked(setDoc).mockRejectedValue(mockError);
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      await expect(saveEstimateToCloud(mockEstimate)).rejects.toThrow('Failed to save');
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error saving estimate to cloud:', mockError);
+      consoleErrorSpy.mockRestore();
+    });
   });
 
   describe('fetchEstimatesFromCloud', () => {
