@@ -1,4 +1,3 @@
-import React from 'react';
 import logoImg from '../assets/logo_light_arctic.jpg';
 
 interface LogoProps {
