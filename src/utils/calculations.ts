@@ -6,41 +6,28 @@ import { PartItem, PartCalculations, EstimateTotals, GutterShellItem, GutterShel
 export function calculateGutterShell(shell: GutterShellItem): GutterShellCalculations {
   const labor = shell.customerLF < 300 ? 7 : 6;
 
-  if (shell.isCustomerCoil) {
-    const subTotal = 0;
-    const totalCost = 0;
-    const totalCostLF = 0;
-    const markup = labor * 0.43;
-    const priceChargedLF = labor + markup;
-    const total = priceChargedLF * shell.orderLF;
-    const customerLFS = shell.customerLF > 0 ? total / shell.customerLF : 0;
+  let subTotal = 0;
+  let totalCost = 0;
+  let totalCostLF = 0;
+  let markup = 0;
 
-    return {
-      subTotal,
-      totalCost,
-      totalCostLF,
-      markup,
-      labor,
-      priceChargedLF,
-      total,
-      customerLFS,
-    };
+  if (shell.isCustomerCoil) {
+    markup = labor * 0.43;
+  } else {
+    // If pricePerSheet > 0, we override costPerLF
+    const costPerLF = shell.pricePerSheet > 0 ? shell.pricePerSheet / 20 : shell.costPerLF;
+
+    subTotal = costPerLF * shell.orderLF;
+    totalCost = subTotal + shell.slitCharge + shell.freight;
+
+    totalCostLF = shell.orderLF > 0 ? totalCost / shell.orderLF : 0;
+    markup = totalCostLF * 0.43;
   }
 
-  // If pricePerSheet > 0, we override costPerLF
-  const costPerLF = shell.pricePerSheet > 0 ? shell.pricePerSheet / 20 : shell.costPerLF;
-  
-  const subTotal = costPerLF * shell.orderLF;
-  const totalCost = subTotal + shell.slitCharge + shell.freight;
-  
-  const totalCostLF = shell.orderLF > 0 ? totalCost / shell.orderLF : 0;
-  const markup = totalCostLF * 0.43;
-  
   const priceChargedLF = totalCostLF + markup + labor;
   const total = priceChargedLF * shell.orderLF;
-  
   const customerLFS = shell.customerLF > 0 ? total / shell.customerLF : 0;
-  
+
   return {
     subTotal,
     totalCost,
@@ -180,81 +167,3 @@ export function formatCurrency(value: number): string {
   }).format(value);
 }
 
-export interface FormulaStep {
-  label: string;
-  expression: string;
-  result: string;
-}
-
-/**
- * Generates an array of mathematical steps explaining exactly how the pricing was reached.
- */
-export function getPartMathExplanation(
-  part: PartItem,
-  rates: { hourlyRate: number; overheadPercent: number; profitPercent: number }
-): FormulaStep[] {
-  const { hours, sheets, pricePerSheet, quantity } = part;
-  const { hourlyRate, overheadPercent, profitPercent } = rates;
-  const calcs = calculatePart(part, rates);
-
-  const steps: FormulaStep[] = [];
-
-  // 1. Labor cost
-  steps.push({
-    label: 'Labor Cost (Hours$)',
-    expression: `${hours.toFixed(2)} Hrs × ${formatCurrency(hourlyRate)}/Hr`,
-    result: formatCurrency(calcs.hoursCost),
-  });
-
-  // 2. Material Cost
-  steps.push({
-    label: 'Material Cost (MaterialCosts)',
-    expression: `${sheets.toFixed(2)} Sheets × ${formatCurrency(pricePerSheet)}/Sheet`,
-    result: formatCurrency(calcs.materialCosts),
-  });
-
-  // 3. Subtotal
-  steps.push({
-    label: 'Subtotal (Hours$ + MaterialCosts)',
-    expression: `${formatCurrency(calcs.hoursCost)} + ${formatCurrency(calcs.materialCosts)}`,
-    result: formatCurrency(calcs.subTotal),
-  });
-
-  // 4. Overhead
-  steps.push({
-    label: `Overhead (${overheadPercent}% of Subtotal)`,
-    expression: `${overheadPercent}% × ${formatCurrency(calcs.subTotal)}`,
-    result: formatCurrency(calcs.overhead),
-  });
-
-  // 5. Profit
-  steps.push({
-    label: `Profit (${profitPercent}% of Subtotal)`,
-    expression: `${profitPercent}% × ${formatCurrency(calcs.subTotal)}`,
-    result: formatCurrency(calcs.profit),
-  });
-
-  // 6. Grand Total
-  steps.push({
-    label: 'Grand Total (Subtotal + Overhead + Profit)',
-    expression: `${formatCurrency(calcs.subTotal)} + ${formatCurrency(calcs.overhead)} + ${formatCurrency(calcs.profit)}`,
-    result: formatCurrency(calcs.grandTotal),
-  });
-
-  // 7. Price per EA
-  if (quantity > 0) {
-    steps.push({
-      label: 'Price Per EA (Grand Total / Quantity)',
-      expression: `${formatCurrency(calcs.grandTotal)} / ${quantity} Units`,
-      result: formatCurrency(calcs.pricePerEa),
-    });
-  } else {
-    steps.push({
-      label: 'Price Per EA',
-      expression: 'Quantity is 0',
-      result: 'N/A (Requires Quantity > 0)',
-    });
-  }
-
-  return steps;
-}

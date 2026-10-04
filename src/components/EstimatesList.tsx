@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Database, Search, Calendar, Trash2, X, PlusCircle, Copy, Edit3, Printer, CheckCircle2 } from 'lucide-react';
 import { Estimate } from '../types';
 import { formatCurrency } from '../utils/calculations';
@@ -24,14 +24,28 @@ export default function EstimatesList({
 }: EstimatesListProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filtered = estimates.filter((e) => {
-    const query = searchQuery.toLowerCase();
-    return (
+  const estimatesWithTotals = useMemo(() => {
+    return estimates.map((item) => {
+      const totalSum = (item.parts || []).reduce((sum, part) => {
+        const sub = (part.hours * item.hourlyRate) + (part.sheets * part.pricePerSheet);
+        const oh = sub * (item.overheadPercent / 100);
+        const pr = sub * (item.profitPercent / 100);
+        return sum + sub + oh + pr;
+      }, 0);
+      return { ...item, totalSum };
+    });
+  }, [estimates]);
+
+  const filtered = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return estimatesWithTotals;
+
+    return estimatesWithTotals.filter((e) => (
       e.name.toLowerCase().includes(query) ||
       e.clientName.toLowerCase().includes(query) ||
       e.quoteNumber.toLowerCase().includes(query)
-    );
-  });
+    ));
+  }, [estimatesWithTotals, searchQuery]);
 
   return (
     <div className="flex flex-col h-full bg-[#00162B] text-white w-96 max-w-full shadow-2xl relative border-l border-[#A5ACAF]/20 z-50">
@@ -83,12 +97,6 @@ export default function EstimatesList({
         ) : (
           filtered.map((item) => {
             const isCurrent = item.id === currentEstimateId;
-            const totalSum = (item.parts || []).reduce((sum, part) => {
-              const sub = (part.hours * item.hourlyRate) + (part.sheets * part.pricePerSheet);
-              const oh = sub * (item.overheadPercent / 100);
-              const pr = sub * (item.profitPercent / 100);
-              return sum + sub + oh + pr;
-            }, 0);
 
             return (
               <div
@@ -128,7 +136,7 @@ export default function EstimatesList({
                   <div>
                     <span className="text-[10px] text-slate-400 block">Total Est:</span>
                     <span className="font-mono text-sm font-extrabold text-[#69BE28]">
-                      {formatCurrency(totalSum)}
+                      {formatCurrency(item.totalSum)}
                     </span>
                   </div>
                   <span className="text-[10px] text-[#A5ACAF] font-medium flex items-center gap-1 font-mono">
