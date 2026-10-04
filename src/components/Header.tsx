@@ -5,7 +5,7 @@ import GutterLogo from './GutterLogo';
 interface HeaderProps {
   estimate: Estimate;
   totals: EstimateTotals;
-  onUpdateMeta: (key: keyof Estimate, value: any) => void;
+  onUpdateMeta: <K extends keyof Estimate>(key: K, value: Estimate[K]) => void;
   onNew: () => void;
   onSave: () => void;
   onPrint: () => void;
