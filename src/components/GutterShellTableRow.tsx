@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Trash2, Copy, MoveUp, MoveDown, AlertCircle } from 'lucide-react';
+import { Trash2, Copy, MoveUp, MoveDown } from 'lucide-react';
 import { GutterShellItem } from '../types';
 import { calculateGutterShell, formatCurrency } from '../utils/calculations';
 import DivZeroWarning from './DivZeroWarning';
