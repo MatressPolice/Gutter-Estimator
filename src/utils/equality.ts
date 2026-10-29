@@ -1,4 +1,4 @@
-import { Estimate, PartItem, GutterShellItem } from '../types';
+import { Estimate } from '../types';
 
 export function isEstimateEqual(a: Estimate, b: Estimate): boolean {
   if (!a || !b) return a === b;
