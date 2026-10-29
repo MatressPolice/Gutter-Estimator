@@ -88,19 +88,36 @@ export function calculateEstimateTotals(
   let totalGrandTotal = 0;
   let totalQuantity = 0;
 
-  parts.forEach((part) => {
-    const calcs = calculatePart(part, rates);
-    totalHours += part.hours || 0;
-    totalSheets += part.sheets || 0;
-    totalHoursCost += calcs.hoursCost;
-    totalMaterialCosts += calcs.materialCosts;
-    totalSubTotal += calcs.subTotal;
-    totalOverhead += calcs.overhead;
-    totalProfit += calcs.profit;
-    totalGrandTotal += calcs.grandTotal;
-    totalQuantity += part.quantity || 0;
-  });
+  const { hourlyRate, overheadPercent, profitPercent } = rates;
+  const ohRate = overheadPercent / 100;
+  const prRate = profitPercent / 100;
 
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+
+    const hours = part.hours || 0;
+    const sheets = part.sheets || 0;
+    const qty = part.quantity || 0;
+
+    totalHours += hours;
+    totalSheets += sheets;
+    totalQuantity += qty;
+
+    const hoursCost = hours * hourlyRate;
+    const materialCosts = sheets * part.pricePerSheet;
+    const subTotal = hoursCost + materialCosts;
+
+    const overhead = subTotal * ohRate;
+    const profit = subTotal * prRate;
+    const grandTotal = subTotal + overhead + profit;
+
+    totalHoursCost += hoursCost;
+    totalMaterialCosts += materialCosts;
+    totalSubTotal += subTotal;
+    totalOverhead += overhead;
+    totalProfit += profit;
+    totalGrandTotal += grandTotal;
+  }
   const averagePricePerEa = totalQuantity > 0 ? totalGrandTotal / totalQuantity : 0;
 
   return {
