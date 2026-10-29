@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Estimate, EstimateTotals } from '../types';
-import { calculatePart, calculateGutterShell, calculateComprehensiveTotals, formatCurrency } from '../utils/calculations';
+import { calculatePart, calculateGutterShell, formatCurrency } from '../utils/calculations';
 import GutterLogo from './GutterLogo';
 
 interface PrintDocumentProps {
@@ -16,11 +16,62 @@ export default function PrintDocument({
   const [activeMode, setActiveMode] = useState<'detailed' | 'client'>(viewMode);
 
   const { compTotals, shellCalcs, partCalcs } = useMemo(() => {
-    return {
-      compTotals: calculateComprehensiveTotals(estimate),
-      shellCalcs: (estimate.shells || []).map(shell => calculateGutterShell(shell)),
-      partCalcs: (estimate.parts || []).map(part => calculatePart(part, estimate))
+    let partsTotalHours = 0;
+    let partsTotalSheets = 0;
+    let partsTotalHoursCost = 0;
+    let partsTotalMaterialCosts = 0;
+    let partsTotalSubTotal = 0;
+    let partsTotalOverhead = 0;
+    let partsTotalProfit = 0;
+    let partsGrandTotal = 0;
+
+    const rates = {
+      hourlyRate: estimate.hourlyRate,
+      overheadPercent: estimate.overheadPercent,
+      profitPercent: estimate.profitPercent,
     };
+
+    const partCalcs = (estimate.parts || []).map(part => {
+      const calcs = calculatePart(part, rates);
+      partsTotalHours += part.hours || 0;
+      partsTotalSheets += part.sheets || 0;
+      partsTotalHoursCost += calcs.hoursCost;
+      partsTotalMaterialCosts += calcs.materialCosts;
+      partsTotalSubTotal += calcs.subTotal;
+      partsTotalOverhead += calcs.overhead;
+      partsTotalProfit += calcs.profit;
+      partsGrandTotal += calcs.grandTotal;
+      return calcs;
+    });
+
+    let shellsTotalOrderLF = 0;
+    let shellsTotalCustomerLF = 0;
+    let shellsGrandTotal = 0;
+
+    const shellCalcs = (estimate.shells || []).map(shell => {
+      const calcs = calculateGutterShell(shell);
+      shellsTotalOrderLF += Number(shell.orderLF) || 0;
+      shellsTotalCustomerLF += Number(shell.customerLF) || 0;
+      shellsGrandTotal += calcs.total || 0;
+      return calcs;
+    });
+
+    const compTotals = {
+      partsTotalHours,
+      partsTotalSheets,
+      partsTotalHoursCost,
+      partsTotalMaterialCosts,
+      partsTotalSubTotal,
+      partsTotalOverhead,
+      partsTotalProfit,
+      partsGrandTotal,
+      shellsTotalOrderLF,
+      shellsTotalCustomerLF,
+      shellsGrandTotal,
+      combinedGrandTotal: partsGrandTotal + shellsGrandTotal,
+    };
+
+    return { compTotals, shellCalcs, partCalcs };
   }, [estimate]);
 
   const dateFormatted = estimate.date
