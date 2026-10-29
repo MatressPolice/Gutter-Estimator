@@ -118,7 +118,6 @@ export function calculateEstimateTotals(
     totalProfit += profit;
     totalGrandTotal += grandTotal;
   }
-
   const averagePricePerEa = totalQuantity > 0 ? totalGrandTotal / totalQuantity : 0;
 
   return {

@@ -1,0 +1,76 @@
+{
+  "resource": {
+    "name": "sessions/7451814885810462182",
+    "title": "Replace 'any' with generic typing in Header onUpdateMeta callback",
+    "createTime": "2026-09-30T16:37:08.390289267Z",
+    "updateTime": "2026-10-04T00:11:08.360271Z",
+    "state": "paused",
+    "sourceContext": {
+      "source": "sources/github/MatressPolice/Gutter-Estimator",
+      "environmentVariablesEnabled": true
+    },
+    "prompt": "# 🧹 Code Health Improvement Task\n\nYou are a code health agent. Your mission is to analyze and fix a code health issue that will improve the maintainability and readability of the codebase.\n\n## Task Details\n\n**File:** `src/components/Header.tsx:8`\n**Issue:** Use of 'any' in onUpdateMeta callback signature\n\n**Language:** tsx\n\n**Current Code:**\n```tsx\nimport { formatCurrency } from '../utils/calculations';\n\ninterface HeaderProps {\n  estimate: Estimate;\n  totals: EstimateTotals;\n  onUpdateMeta: (key: keyof Estimate, value: any) => void;\n  onNew: () => void;\n  onSave: () => void;\n}\n```\n\n**Rationale:** Can be typed using generics to ensure value matches the expected type for the key.\n\n## Your Process\n\n### 1. 🔍 UNDERSTAND - Analyze the Code Health Issue\n* Review the surrounding code and understand its purpose\n* Identify the specific code health problem (duplication, complexity, naming, dead code, deprecated usage, etc.)\n* Consider how this issue affects maintainability and readability\n\n### 2. ⚖️ ASSESS - Evaluate the Risk\nBefore making changes, assess the impact:\n* What other code depends on or references this code?\n* Are there similar patterns elsewhere that should be fixed consistently?\n* What is the risk of inadvertently breaking functionality?\n\n### 3. 📋 PLAN - Design the Improvement\nBased on your assessment, plan your approach:\n* What is the ideal state of this code?\n* Are there existing patterns in the codebase to follow?\n* Will this change affect other parts of the codebase?\n\n### 4. 🔧 IMPLEMENT - Refactor with Care\n* Write clean, readable code that addresses the issue\n* Follow existing codebase patterns and conventions\n* Preserve all existing functionality\n* Ensure the fix doesn't introduce new issues\n* Update or write additional tests if the refactoring warrants coverage\n* Add or update documentation if needed\n\n### 5. ✅ VERIFY - Validate the Improvement\n- Run format and lint checks\n- Run the full test suite\n- Verify the code health issue is resolved\n- Ensure no functionality is broken\n\n### 6. 📝 DOCUMENT - Explain the Improvement\nCreate a PR with:\n- Title: \"🧹 [code health improvement description]\"\n- Description with:\n  * 🎯 **What:** The code health issue addressed\n  * 💡 **Why:** How this improves maintainability\n  * ✅ **Verification:** How you confirmed the change is safe\n  * ✨ **Result:** The improvement achieved\n\nRemember: Code health improvements should make the codebase better without changing behavior. When in doubt, preserve functionality over cleanliness.\n",
+    "url": "https://jules.google.com/session/7451814885810462182",
+    "id": "7451814885810462182",
+    "outputs": [
+      {
+        "type": "changeSet",
+        "changeSet": {
+          "source": "sources/github/MatressPolice/Gutter-Estimator",
+          "gitPatch": {
+            "unidiffPatch": "diff --git a/src/App.tsx b/src/App.tsx\nindex 205f19f..0be9bcb 100644\n--- a/src/App.tsx\n+++ b/src/App.tsx\n@@ -147,7 +147,7 @@ export default function App() {\n   // ----------------------------------------------------\n   // WORKSPACE ACTION HANDLERS\n   // ----------------------------------------------------\n-  const handleUpdateMeta = (key: keyof Estimate, value: any) => {\n+  const handleUpdateMeta = <K extends keyof Estimate>(key: K, value: Estimate[K]) => {\n     setCurrentEstimate((prev) => ({\n       ...prev,\n       [key]: value,\ndiff --git a/src/components/Header.tsx b/src/components/Header.tsx\nindex f260cd1..752a448 100644\n--- a/src/components/Header.tsx\n+++ b/src/components/Header.tsx\n@@ -5,7 +5,7 @@ import GutterLogo from './GutterLogo';\n interface HeaderProps {\n   estimate: Estimate;\n   totals: EstimateTotals;\n-  onUpdateMeta: (key: keyof Estimate, value: any) => void;\n+  onUpdateMeta: <K extends keyof Estimate>(key: K, value: Estimate[K]) => void;\n   onNew: () => void;\n   onSave: () => void;\n   onPrint: () => void;\n",
+            "baseCommitId": "e44d68138595edf2d7684ac80a813cdc98a58b21",
+            "suggestedCommitMessage": "Refactor `onUpdateMeta` to use generic typing\n\nReplaced the use of `any` in `onUpdateMeta` signature with a generic `<K extends keyof Estimate>` in `src/components/Header.tsx` and its implementation in `src/App.tsx`."
+          }
+        }
+      },
+      {
+        "type": "pullRequest",
+        "pullRequest": {
+          "url": "https://github.com/MatressPolice/Gutter-Estimator/pull/61",
+          "title": "🧹 [code health improvement] Remove `any` from onUpdateMeta signature in Header component",
+          "description": "🎯 **What:** Removed the `any` type from the `onUpdateMeta` callback signature in `HeaderProps` (`src/components/Header.tsx`) and updated its implementation in `src/App.tsx` (`handleUpdateMeta`).\n💡 **Why:** Using generics (`<K extends keyof Estimate>`) ensures type safety, making sure the `value` argument accurately matches the type of the key being updated on the `Estimate` object.\n✅ **Verification:** Verified via `npm run lint` that no type errors were introduced and code complies with TypeScript configuration. Code review approved the changes.\n✨ **Result:** Improved maintainability and codebase safety by enforcing stronger type checks on metadata updates.\n\n---\n*PR created automatically by Jules for task [7451814885810462182](https://jules.google.com/task/7451814885810462182) started by @MatressPolice*",
+          "baseRef": "main",
+          "headRef": "fix-header-any-type-7451814885810462182"
+        }
+      }
+    ],
+    "archived": true,
+    "outcome": {
+      "sessionId": "7451814885810462182",
+      "title": "Replace 'any' with generic typing in Header onUpdateMeta callback",
+      "state": "completed",
+      "pullRequest": {
+        "url": "https://github.com/MatressPolice/Gutter-Estimator/pull/61",
+        "title": "🧹 [code health improvement] Remove `any` from onUpdateMeta signature in Header component",
+        "description": "🎯 **What:** Removed the `any` type from the `onUpdateMeta` callback signature in `HeaderProps` (`src/components/Header.tsx`) and updated its implementation in `src/App.tsx` (`handleUpdateMeta`).\n💡 **Why:** Using generics (`<K extends keyof Estimate>`) ensures type safety, making sure the `value` argument accurately matches the type of the key being updated on the `Estimate` object.\n✅ **Verification:** Verified via `npm run lint` that no type errors were introduced and code complies with TypeScript configuration. Code review approved the changes.\n✨ **Result:** Improved maintainability and codebase safety by enforcing stronger type checks on metadata updates.\n\n---\n*PR created automatically by Jules for task [7451814885810462182](https://jules.google.com/task/7451814885810462182) started by @MatressPolice*",
+        "baseRef": "main",
+        "headRef": "fix-header-any-type-7451814885810462182"
+      },
+      "outputs": [
+        {
+          "type": "changeSet",
+          "changeSet": {
+            "source": "sources/github/MatressPolice/Gutter-Estimator",
+            "gitPatch": {
+              "unidiffPatch": "diff --git a/src/App.tsx b/src/App.tsx\nindex 205f19f..0be9bcb 100644\n--- a/src/App.tsx\n+++ b/src/App.tsx\n@@ -147,7 +147,7 @@ export default function App() {\n   // ----------------------------------------------------\n   // WORKSPACE ACTION HANDLERS\n   // ----------------------------------------------------\n-  const handleUpdateMeta = (key: keyof Estimate, value: any) => {\n+  const handleUpdateMeta = <K extends keyof Estimate>(key: K, value: Estimate[K]) => {\n     setCurrentEstimate((prev) => ({\n       ...prev,\n       [key]: value,\ndiff --git a/src/components/Header.tsx b/src/components/Header.tsx\nindex f260cd1..752a448 100644\n--- a/src/components/Header.tsx\n+++ b/src/components/Header.tsx\n@@ -5,7 +5,7 @@ import GutterLogo from './GutterLogo';\n interface HeaderProps {\n   estimate: Estimate;\n   totals: EstimateTotals;\n-  onUpdateMeta: (key: keyof Estimate, value: any) => void;\n+  onUpdateMeta: <K extends keyof Estimate>(key: K, value: Estimate[K]) => void;\n   onNew: () => void;\n   onSave: () => void;\n   onPrint: () => void;\n",
+              "baseCommitId": "e44d68138595edf2d7684ac80a813cdc98a58b21",
+              "suggestedCommitMessage": "Refactor `onUpdateMeta` to use generic typing\n\nReplaced the use of `any` in `onUpdateMeta` signature with a generic `<K extends keyof Estimate>` in `src/components/Header.tsx` and its implementation in `src/App.tsx`."
+            }
+          }
+        },
+        {
+          "type": "pullRequest",
+          "pullRequest": {
+            "url": "https://github.com/MatressPolice/Gutter-Estimator/pull/61",
+            "title": "🧹 [code health improvement] Remove `any` from onUpdateMeta signature in Header component",
+            "description": "🎯 **What:** Removed the `any` type from the `onUpdateMeta` callback signature in `HeaderProps` (`src/components/Header.tsx`) and updated its implementation in `src/App.tsx` (`handleUpdateMeta`).\n💡 **Why:** Using generics (`<K extends keyof Estimate>`) ensures type safety, making sure the `value` argument accurately matches the type of the key being updated on the `Estimate` object.\n✅ **Verification:** Verified via `npm run lint` that no type errors were introduced and code complies with TypeScript configuration. Code review approved the changes.\n✨ **Result:** Improved maintainability and codebase safety by enforcing stronger type checks on metadata updates.\n\n---\n*PR created automatically by Jules for task [7451814885810462182](https://jules.google.com/task/7451814885810462182) started by @MatressPolice*",
+            "baseRef": "main",
+            "headRef": "fix-header-any-type-7451814885810462182"
+          }
+        }
+      ]
+    }
+  },
+  "_lastSyncedAt": 1791072670260
+}
