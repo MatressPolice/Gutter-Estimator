@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Estimate, PartItem, EstimateTotals, GutterShellItem } from '../types';
+import { Estimate, PartItem, GutterShellItem } from '../types';
 import { calculateEstimateTotals } from '../utils/calculations';
 import { isEstimateEqual } from '../utils/equality';
 import { saveEstimateToCloud, deleteEstimateFromCloud, subscribeToEstimates } from '../firebase';
@@ -133,7 +133,7 @@ export function useAppLogic() {
   // ----------------------------------------------------
   // METRICS COMPUTATIONS
   // ----------------------------------------------------
-  const totals: EstimateTotals = calculateEstimateTotals(currentEstimate.parts, {
+  const totals = calculateEstimateTotals(currentEstimate.parts, {
     hourlyRate: currentEstimate.hourlyRate,
     overheadPercent: currentEstimate.overheadPercent,
     profitPercent: currentEstimate.profitPercent,
