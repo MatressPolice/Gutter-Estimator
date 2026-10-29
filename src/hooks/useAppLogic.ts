@@ -55,24 +55,9 @@ export function useAppLogic() {
   // PERSISTENCE ENGINE (FIRESTORE CLOUD + LOCAL CACHE)
   // ----------------------------------------------------
   useEffect(() => {
-    // 1. Initial immediate local cache load (filtering out any old seed samples)
-    const stored = localStorage.getItem('custom_parts_estimates');
-    if (stored) {
-      try {
-        const parsed = (JSON.parse(stored) as Estimate[]).filter(
-          (e) => e.id !== 'seed-estimate-id-1' && e.name !== 'Custom Base Plate & Bracket Assembly'
-        );
-        if (parsed.length > 0) {
-          setEstimates(parsed);
-          const sorted = [...parsed].sort(
-            (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-          );
-          setCurrentEstimate(sorted[0]);
-        }
-      } catch (err) {
-        console.error('Error reading saved estimates from local cache:', err);
-      }
-    }
+    // 1. Clear out legacy plain-text localStorage data to secure the app.
+    // Offline caching is now handled natively via Firestore IndexedDB persistence.
+    localStorage.removeItem('custom_parts_estimates');
 
     // 2. Real-time Cloud Firestore subscription
     const unsubscribe = subscribeToEstimates(
@@ -84,7 +69,6 @@ export function useAppLogic() {
         );
 
         setEstimates(cleaned);
-        localStorage.setItem('custom_parts_estimates', JSON.stringify(cleaned));
 
         if (cleaned.length > 0) {
           setCurrentEstimate((current) => {
@@ -394,7 +378,7 @@ export function useAppLogic() {
       };
     }
 
-    // 1. Optimistic local state + localStorage update
+    // 1. Optimistic local state update
     setEstimates((prev) => {
       const idx = prev.findIndex((e) => e.id === saveItem.id);
       let updatedList = [...prev];
@@ -403,7 +387,6 @@ export function useAppLogic() {
       } else {
         updatedList.unshift(saveItem);
       }
-      localStorage.setItem('custom_parts_estimates', JSON.stringify(updatedList));
       return updatedList;
     });
 
@@ -447,7 +430,6 @@ export function useAppLogic() {
     // 1. Local update
     setEstimates((prev) => {
       const filtered = prev.filter((e) => e.id !== id);
-      localStorage.setItem('custom_parts_estimates', JSON.stringify(filtered));
 
       if (currentEstimate.id === id) {
         if (filtered.length > 0) {
@@ -487,7 +469,6 @@ export function useAppLogic() {
 
     setEstimates((prev) => {
       const updatedList = [duplicated, ...prev];
-      localStorage.setItem('custom_parts_estimates', JSON.stringify(updatedList));
       return updatedList;
     });
 

@@ -10,7 +10,8 @@ import {
   onSnapshot,
   query,
   orderBy,
-  where
+  where,
+  enableIndexedDbPersistence
 } from 'firebase/firestore';
 import { Estimate } from './types';
 
@@ -26,6 +27,12 @@ const firebaseConfig = {
 // Initialize Firebase App singleton
 export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const db = getFirestore(app);
+
+// Enable offline persistence
+enableIndexedDbPersistence(db).catch((err) => {
+  console.error("Offline persistence error:", err);
+});
+
 export const auth = getAuth(app);
 
 // Authenticate anonymously

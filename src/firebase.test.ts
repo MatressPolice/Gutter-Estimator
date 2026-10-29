@@ -29,7 +29,7 @@ vi.mock('firebase/firestore', () => ({
   query: vi.fn(),
   orderBy: vi.fn(),
   where: vi.fn(),
-  enableIndexedDbPersistence: vi.fn()
+  enableIndexedDbPersistence: vi.fn(() => Promise.resolve())
 }));
 
 describe('firebase.ts', () => {
