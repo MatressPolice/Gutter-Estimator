@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Database, Search, Calendar, Trash2, X, PlusCircle, Copy, Edit3, Printer, CheckCircle2 } from 'lucide-react';
 import { Estimate } from '../types';
-import { formatCurrency } from '../utils/calculations';
+import { formatCurrency, calculateEstimateTotals } from '../utils/calculations';
 
 interface EstimatesListProps {
   estimates: Estimate[];
@@ -26,13 +26,12 @@ export default function EstimatesList({
 
   const estimatesWithTotals = useMemo(() => {
     return estimates.map((item) => {
-      const totalSum = (item.parts || []).reduce((sum, part) => {
-        const sub = (part.hours * item.hourlyRate) + (part.sheets * part.pricePerSheet);
-        const oh = sub * (item.overheadPercent / 100);
-        const pr = sub * (item.profitPercent / 100);
-        return sum + sub + oh + pr;
-      }, 0);
-      return { ...item, totalSum };
+      const totals = calculateEstimateTotals(item.parts || [], {
+        hourlyRate: item.hourlyRate,
+        overheadPercent: item.overheadPercent,
+        profitPercent: item.profitPercent,
+      });
+      return { ...item, totalSum: totals.totalGrandTotal };
     });
   }, [estimates]);
 
