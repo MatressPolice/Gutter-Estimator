@@ -86,6 +86,7 @@ export function calculateEstimateTotals(
   let totalOverhead = 0;
   let totalProfit = 0;
   let totalGrandTotal = 0;
+  let totalQuantity = 0;
 
   parts.forEach((part) => {
     const calcs = calculatePart(part, rates);
@@ -97,9 +98,9 @@ export function calculateEstimateTotals(
     totalOverhead += calcs.overhead;
     totalProfit += calcs.profit;
     totalGrandTotal += calcs.grandTotal;
+    totalQuantity += part.quantity || 0;
   });
 
-  const totalQuantity = parts.reduce((sum, p) => sum + (p.quantity || 0), 0);
   const averagePricePerEa = totalQuantity > 0 ? totalGrandTotal / totalQuantity : 0;
 
   return {
