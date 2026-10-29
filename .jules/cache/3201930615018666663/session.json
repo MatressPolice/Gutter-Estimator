@@ -1,0 +1,76 @@
+{
+  "resource": {
+    "name": "sessions/3201930615018666663",
+    "title": "Fix `any` type usage in IngestionQueue.tsx",
+    "createTime": "2026-09-22T03:56:33.998128498Z",
+    "updateTime": "2026-09-22T04:15:39.804354Z",
+    "state": "completed",
+    "sourceContext": {
+      "source": "sources/github/MatressPolice/CFB2027-Dynasty-Manager",
+      "environmentVariablesEnabled": true
+    },
+    "prompt": "# 🧹 Code Health Improvement Task\n\nYou are a code health agent. Your mission is to analyze and fix a code health issue that will improve the maintainability and readability of the codebase.\n\n## Task Details\n\n**File:** `src/components/Ingestion/IngestionQueue.tsx:75`\n**Issue:** Any Type Usage in IngestionQueue.tsx\n\n**Language:** typescript\n\n**Current Code:**\n```typescript\n  // For recruits/prospects we keep them separated.\n  parsedRoster: Player[];\n  parsedRecruit?: Recruit;\n  parsedTransferProspect?: TransferPortalProspect;\n}\n\nconst enrichParsedEntities = (parsed: any, filename?: string) => {\n  if (parsed.type === 'roster' && parsed.players) {\n    return { ...parsed, players: parsed.players.map((p: Player) => ({ ...p, _ingestedFilename: filename })) };\n  }\n  if (parsed.type === 'recruit' && parsed.recruit) {\n```\n\n**Rationale:** Moderate confidence. Replacing 'any' with a specific type or interface requires understanding the structure of the data being handled, which might involve cross-file investigation, but is generally solvable.\n\n## Your Process\n\n### 1. 🔍 UNDERSTAND - Analyze the Code Health Issue\n* Review the surrounding code and understand its purpose\n* Identify the specific code health problem (duplication, complexity, naming, dead code, deprecated usage, etc.)\n* Consider how this issue affects maintainability and readability\n\n### 2. ⚖️ ASSESS - Evaluate the Risk\nBefore making changes, assess the impact:\n* What other code depends on or references this code?\n* Are there similar patterns elsewhere that should be fixed consistently?\n* What is the risk of inadvertently breaking functionality?\n\n### 3. 📋 PLAN - Design the Improvement\nBased on your assessment, plan your approach:\n* What is the ideal state of this code?\n* Are there existing patterns in the codebase to follow?\n* Will this change affect other parts of the codebase?\n\n### 4. 🔧 IMPLEMENT - Refactor with Care\n* Write clean, readable code that addresses the issue\n* Follow existing codebase patterns and conventions\n* Preserve all existing functionality\n* Ensure the fix doesn't introduce new issues\n* Update or write additional tests if the refactoring warrants coverage\n* Add or update documentation if needed\n\n### 5. ✅ VERIFY - Validate the Improvement\n- Run format and lint checks\n- Run the full test suite\n- Verify the code health issue is resolved\n- Ensure no functionality is broken\n\n### 6. 📝 DOCUMENT - Explain the Improvement\nCreate a PR with:\n- Title: \"🧹 [code health improvement description]\"\n- Description with:\n  * 🎯 **What:** The code health issue addressed\n  * 💡 **Why:** How this improves maintainability\n  * ✅ **Verification:** How you confirmed the change is safe\n  * ✨ **Result:** The improvement achieved\n\nRemember: Code health improvements should make the codebase better without changing behavior. When in doubt, preserve functionality over cleanliness.\n",
+    "url": "https://jules.google.com/session/3201930615018666663",
+    "id": "3201930615018666663",
+    "outputs": [
+      {
+        "type": "changeSet",
+        "changeSet": {
+          "source": "sources/github/MatressPolice/CFB2027-Dynasty-Manager",
+          "gitPatch": {
+            "unidiffPatch": "diff --git a/src/components/Ingestion/IngestionQueue.tsx b/src/components/Ingestion/IngestionQueue.tsx\nindex 9cb7723..0855487 100644\n--- a/src/components/Ingestion/IngestionQueue.tsx\n+++ b/src/components/Ingestion/IngestionQueue.tsx\n@@ -1,6 +1,6 @@\n import React, { useState } from 'react';\n import { UploadCloud, CheckCircle2, AlertTriangle, FileText, Eye, Check, X, Sparkles, Save, CheckCheck, RotateCcw, Trash2, RefreshCw } from 'lucide-react';\n-import { Player, Recruit, Position, DevTrait, TransferPortalProspect } from '../../types/dynasty';\n+import { Player, Recruit, Position, DevTrait, TransferPortalProspect, ParsedImageResult } from '../../types/dynasty';\n import { SkillCapsDisplay } from '../TransferPortal/SkillCapsDisplay';\n import { findMatchingPlayer } from '../../utils/playerMatching';\n \n@@ -72,7 +72,7 @@ const parseImageApi = async (file: File, apiKey: string) => {\n   return data;\n };\n \n-const enrichParsedEntities = (parsed: any, filename?: string) => {\n+const enrichParsedEntities = (parsed: ParsedImageResult, filename?: string) => {\n   let parsedPlayers: Player[] = parsed.players || [];\n   let parsedRecruit: Recruit | undefined = parsed.recruit;\n   let parsedTransferProspect: TransferPortalProspect | undefined = parsed.prospect;\n@@ -135,7 +135,7 @@ export const saveTransferProspectToApi = async (\n };\n \n export const processAutoSave = async (\n-  parsed: any,\n+  parsed: ParsedImageResult,\n   parsedPlayers: Player[],\n   parsedRecruit: Recruit | undefined,\n   parsedTransferProspect: TransferPortalProspect | undefined,\n@@ -240,7 +240,7 @@ export const IngestionQueue: React.FC<IngestionQueueProps> = ({\n \n   const updateSuccessState = (\n     item: ProcessedFileItem,\n-    parsed: any,\n+    parsed: ParsedImageResult,\n     parsedPlayers: Player[],\n     parsedRecruit: Recruit | undefined,\n     parsedTransferProspect: TransferPortalProspect | undefined,\n@@ -286,7 +286,7 @@ export const IngestionQueue: React.FC<IngestionQueueProps> = ({\n \n     try {\n       const data = await parseImageApi(item.file, apiKey);\n-      const parsed = data.parsed;\n+      const parsed = data.parsed as ParsedImageResult;\n \n       let { parsedPlayers, parsedRecruit, parsedTransferProspect } = enrichParsedEntities(parsed, data.filename);\n \ndiff --git a/src/types/dynasty.ts b/src/types/dynasty.ts\nindex 4494564..55c96c7 100644\n--- a/src/types/dynasty.ts\n+++ b/src/types/dynasty.ts\n@@ -200,3 +200,10 @@ export interface IngestionItem {\n   errorMessage?: string;\n   createdAt: string;\n }\n+\n+export interface ParsedImageResult {\n+  type: 'roster' | 'recruit' | 'transfer_portal';\n+  players?: Player[];\n+  recruit?: Recruit;\n+  prospect?: TransferPortalProspect;\n+}\n",
+            "baseCommitId": "6174fb321cfc6ec18ea3a740a62138484ec7237e",
+            "suggestedCommitMessage": "🧹 Replace any type in IngestionQueue with ParsedImageResult interface"
+          }
+        }
+      },
+      {
+        "type": "pullRequest",
+        "pullRequest": {
+          "url": "https://github.com/MatressPolice/CFB2027-Dynasty-Manager/pull/301",
+          "title": "🧹 Fix Any Type Usage in IngestionQueue.tsx",
+          "description": "🎯 What: Replaced any type usage in IngestionQueue.tsx with a concrete ParsedImageResult interface.\n💡 Why: This improves maintainability and readability by explicitly defining the structure of the parsed data.\n✅ Verification: Ran TypeScript compilation and the test suite.\n✨ Result: Code is cleaner and more type-safe without changing functionality.\n\n---\n*PR created automatically by Jules for task [3201930615018666663](https://jules.google.com/task/3201930615018666663) started by @MatressPolice*",
+          "baseRef": "master",
+          "headRef": "fix/any-type-ingestion-queue-3201930615018666663"
+        }
+      }
+    ],
+    "archived": false,
+    "outcome": {
+      "sessionId": "3201930615018666663",
+      "title": "Fix `any` type usage in IngestionQueue.tsx",
+      "state": "completed",
+      "pullRequest": {
+        "url": "https://github.com/MatressPolice/CFB2027-Dynasty-Manager/pull/301",
+        "title": "🧹 Fix Any Type Usage in IngestionQueue.tsx",
+        "description": "🎯 What: Replaced any type usage in IngestionQueue.tsx with a concrete ParsedImageResult interface.\n💡 Why: This improves maintainability and readability by explicitly defining the structure of the parsed data.\n✅ Verification: Ran TypeScript compilation and the test suite.\n✨ Result: Code is cleaner and more type-safe without changing functionality.\n\n---\n*PR created automatically by Jules for task [3201930615018666663](https://jules.google.com/task/3201930615018666663) started by @MatressPolice*",
+        "baseRef": "master",
+        "headRef": "fix/any-type-ingestion-queue-3201930615018666663"
+      },
+      "outputs": [
+        {
+          "type": "changeSet",
+          "changeSet": {
+            "source": "sources/github/MatressPolice/CFB2027-Dynasty-Manager",
+            "gitPatch": {
+              "unidiffPatch": "diff --git a/src/components/Ingestion/IngestionQueue.tsx b/src/components/Ingestion/IngestionQueue.tsx\nindex 9cb7723..0855487 100644\n--- a/src/components/Ingestion/IngestionQueue.tsx\n+++ b/src/components/Ingestion/IngestionQueue.tsx\n@@ -1,6 +1,6 @@\n import React, { useState } from 'react';\n import { UploadCloud, CheckCircle2, AlertTriangle, FileText, Eye, Check, X, Sparkles, Save, CheckCheck, RotateCcw, Trash2, RefreshCw } from 'lucide-react';\n-import { Player, Recruit, Position, DevTrait, TransferPortalProspect } from '../../types/dynasty';\n+import { Player, Recruit, Position, DevTrait, TransferPortalProspect, ParsedImageResult } from '../../types/dynasty';\n import { SkillCapsDisplay } from '../TransferPortal/SkillCapsDisplay';\n import { findMatchingPlayer } from '../../utils/playerMatching';\n \n@@ -72,7 +72,7 @@ const parseImageApi = async (file: File, apiKey: string) => {\n   return data;\n };\n \n-const enrichParsedEntities = (parsed: any, filename?: string) => {\n+const enrichParsedEntities = (parsed: ParsedImageResult, filename?: string) => {\n   let parsedPlayers: Player[] = parsed.players || [];\n   let parsedRecruit: Recruit | undefined = parsed.recruit;\n   let parsedTransferProspect: TransferPortalProspect | undefined = parsed.prospect;\n@@ -135,7 +135,7 @@ export const saveTransferProspectToApi = async (\n };\n \n export const processAutoSave = async (\n-  parsed: any,\n+  parsed: ParsedImageResult,\n   parsedPlayers: Player[],\n   parsedRecruit: Recruit | undefined,\n   parsedTransferProspect: TransferPortalProspect | undefined,\n@@ -240,7 +240,7 @@ export const IngestionQueue: React.FC<IngestionQueueProps> = ({\n \n   const updateSuccessState = (\n     item: ProcessedFileItem,\n-    parsed: any,\n+    parsed: ParsedImageResult,\n     parsedPlayers: Player[],\n     parsedRecruit: Recruit | undefined,\n     parsedTransferProspect: TransferPortalProspect | undefined,\n@@ -286,7 +286,7 @@ export const IngestionQueue: React.FC<IngestionQueueProps> = ({\n \n     try {\n       const data = await parseImageApi(item.file, apiKey);\n-      const parsed = data.parsed;\n+      const parsed = data.parsed as ParsedImageResult;\n \n       let { parsedPlayers, parsedRecruit, parsedTransferProspect } = enrichParsedEntities(parsed, data.filename);\n \ndiff --git a/src/types/dynasty.ts b/src/types/dynasty.ts\nindex 4494564..55c96c7 100644\n--- a/src/types/dynasty.ts\n+++ b/src/types/dynasty.ts\n@@ -200,3 +200,10 @@ export interface IngestionItem {\n   errorMessage?: string;\n   createdAt: string;\n }\n+\n+export interface ParsedImageResult {\n+  type: 'roster' | 'recruit' | 'transfer_portal';\n+  players?: Player[];\n+  recruit?: Recruit;\n+  prospect?: TransferPortalProspect;\n+}\n",
+              "baseCommitId": "6174fb321cfc6ec18ea3a740a62138484ec7237e",
+              "suggestedCommitMessage": "🧹 Replace any type in IngestionQueue with ParsedImageResult interface"
+            }
+          }
+        },
+        {
+          "type": "pullRequest",
+          "pullRequest": {
+            "url": "https://github.com/MatressPolice/CFB2027-Dynasty-Manager/pull/301",
+            "title": "🧹 Fix Any Type Usage in IngestionQueue.tsx",
+            "description": "🎯 What: Replaced any type usage in IngestionQueue.tsx with a concrete ParsedImageResult interface.\n💡 Why: This improves maintainability and readability by explicitly defining the structure of the parsed data.\n✅ Verification: Ran TypeScript compilation and the test suite.\n✨ Result: Code is cleaner and more type-safe without changing functionality.\n\n---\n*PR created automatically by Jules for task [3201930615018666663](https://jules.google.com/task/3201930615018666663) started by @MatressPolice*",
+            "baseRef": "master",
+            "headRef": "fix/any-type-ingestion-queue-3201930615018666663"
+          }
+        }
+      ]
+    }
+  },
+  "_lastSyncedAt": 1791072690614
+}
