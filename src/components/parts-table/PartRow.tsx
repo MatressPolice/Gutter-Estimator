@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Plus, Trash2, Copy, MoveUp, MoveDown, AlertCircle } from 'lucide-react';
+import { Trash2, Copy, MoveUp, MoveDown } from 'lucide-react';
 import { PartItem } from '../../types';
 import { calculatePart, formatCurrency } from '../../utils/calculations';
 import DivZeroWarning from '../DivZeroWarning';
