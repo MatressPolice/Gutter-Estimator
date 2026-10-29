@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Estimate, PartItem, EstimateTotals, GutterShellItem } from '../types';
 import { calculateEstimateTotals } from '../utils/calculations';
 import { isEstimateEqual } from '../utils/equality';
@@ -133,11 +133,20 @@ export function useAppLogic() {
   // ----------------------------------------------------
   // METRICS COMPUTATIONS
   // ----------------------------------------------------
-  const totals: EstimateTotals = calculateEstimateTotals(currentEstimate.parts, {
-    hourlyRate: currentEstimate.hourlyRate,
-    overheadPercent: currentEstimate.overheadPercent,
-    profitPercent: currentEstimate.profitPercent,
-  });
+  // ⚡ Bolt: Memoized derived state to prevent O(N) recalculations of parts on unrelated UI state changes (tab switch, modal open, sidebar toggle)
+  // Expected Impact: Eliminates redundant calculateEstimateTotals executions, reducing CPU cycle waste when toggling UI elements.
+  const totals: EstimateTotals = useMemo(() => {
+    return calculateEstimateTotals(currentEstimate.parts, {
+      hourlyRate: currentEstimate.hourlyRate,
+      overheadPercent: currentEstimate.overheadPercent,
+      profitPercent: currentEstimate.profitPercent,
+    });
+  }, [
+    currentEstimate.parts,
+    currentEstimate.hourlyRate,
+    currentEstimate.overheadPercent,
+    currentEstimate.profitPercent,
+  ]);
 
   // ----------------------------------------------------
   // WORKSPACE ACTION HANDLERS
