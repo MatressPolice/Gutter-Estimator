@@ -73,8 +73,8 @@ describe('App Component', () => {
         expect(errorSpy).toHaveBeenCalledWith('Cloud sync offline; stored in local cache:', mockError);
       });
 
-      // Verify toast is shown for local save
-      expect(screen.getByText(/Saved quote: "Test Project 123" to Cloud Firestore!/)).toBeInTheDocument();
+      // Verify truthful toast is shown for local save when cloud is offline
+      expect(screen.getByText(/Saved quote: "Test Project 123" locally \(Cloud Offline\)/)).toBeInTheDocument();
     }
 
     errorSpy.mockRestore();

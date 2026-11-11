@@ -419,14 +419,21 @@ export function useAppLogic() {
     setCurrentEstimate(saveItem);
 
     // 2. Cloud Firestore persistence
+    let cloudSynced = false;
     try {
       await saveEstimateToCloud(saveItem);
       setIsCloudConnected(true);
+      cloudSynced = true;
     } catch (err) {
       console.warn('Cloud sync offline; stored in local cache:', err);
+      setIsCloudConnected(false);
     }
 
-    showToast(`Saved quote: "${saveItem.name}" to Cloud Firestore!`);
+    if (cloudSynced) {
+      showToast(`Saved quote: "${saveItem.name}" to Cloud Firestore!`);
+    } else {
+      showToast(`Saved quote: "${saveItem.name}" locally (Cloud Offline)`);
+    }
   };
 
   const handleCreateNewEstimate = () => {
@@ -504,13 +511,17 @@ export function useAppLogic() {
     setActivePartId(duplicated.parts.length > 0 ? duplicated.parts[0].id : null);
     setIsSidebarOpen(false);
 
+    let cloudSynced = false;
     try {
       await saveEstimateToCloud(duplicated);
+      setIsCloudConnected(true);
+      cloudSynced = true;
     } catch (err) {
       console.warn('Saved clone locally, cloud sync pending:', err);
+      setIsCloudConnected(false);
     }
 
-    showToast(`Cloned quote: "${duplicated.name}"`);
+    showToast(cloudSynced ? `Cloned quote: "${duplicated.name}"` : `Cloned quote: "${duplicated.name}" (Local only)`);
   };
 
   return {
