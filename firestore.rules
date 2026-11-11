@@ -1,9 +1,75 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: estimates
+// Document ID: estimateId (matches data.id)
+// Fields:
+//   - id: string (required, immutable, matches document ID)
+//   - name: string (required, 1-200 chars)
+//   - clientName: string (required, 0-200 chars)
+//   - quoteNumber: string (required, 0-100 chars)
+//   - date: string (required, 1-30 chars)
+//   - notes: string (optional, 0-2000 chars)
+//   - hourlyRate: number (required, 0-5000)
+//   - overheadPercent: number (required, 0-500)
+//   - profitPercent: number (required, 0-500)
+//   - parts: list (required, <= 200 items)
+//   - shells: list (required, <= 200 items)
+//   - createdAt: string (required, ISO 8601 string, <= 40 chars)
+//   - updatedAt: string (required, ISO 8601 string, <= 40 chars)
+//   - userId: string (required, immutable, matches request.auth.uid)
+//
+// ===============================================================
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidEstimate(data, estimateId) {
+      return data.keys().hasAll(['id', 'name', 'clientName', 'quoteNumber', 'date', 'hourlyRate', 'overheadPercent', 'profitPercent', 'parts', 'shells', 'createdAt', 'updatedAt', 'userId'])
+        && data.keys().hasOnly(['id', 'name', 'clientName', 'quoteNumber', 'date', 'notes', 'hourlyRate', 'overheadPercent', 'profitPercent', 'parts', 'shells', 'createdAt', 'updatedAt', 'userId'])
+        && data.id == estimateId
+        && data.userId is string && data.userId == request.auth.uid
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 200
+        && data.clientName is string && data.clientName.size() <= 200
+        && data.quoteNumber is string && data.quoteNumber.size() <= 100
+        && data.date is string && data.date.size() > 0 && data.date.size() <= 30
+        && (!('notes' in data) || (data.notes is string && data.notes.size() <= 2000))
+        && data.hourlyRate is number && data.hourlyRate >= 0 && data.hourlyRate <= 5000
+        && data.overheadPercent is number && data.overheadPercent >= 0 && data.overheadPercent <= 500
+        && data.profitPercent is number && data.profitPercent >= 0 && data.profitPercent <= 500
+        && data.parts is list && data.parts.size() <= 200
+        && data.shells is list && data.shells.size() <= 200
+        && data.createdAt is string && data.createdAt.size() <= 40
+        && data.updatedAt is string && data.updatedAt.size() <= 40;
+    }
+
     match /estimates/{estimateId} {
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      // Create: user must be authenticated, payload must be valid, and ID must match path
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && isValidEstimate(request.resource.data, estimateId);
+
+      // Read: only owner can read
+      allow read: if isOwner(resource.data.userId);
+
+      // Update: only owner can update, userId and id cannot be changed, and payload must be valid
+      allow update: if isOwner(resource.data.userId)
+        && request.resource.data.userId == resource.data.userId
+        && request.resource.data.id == resource.data.id
+        && isValidEstimate(request.resource.data, estimateId);
+
+      // Delete: only owner can delete
+      allow delete: if isOwner(resource.data.userId);
     }
   }
 }
